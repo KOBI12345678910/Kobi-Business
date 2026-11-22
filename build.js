@@ -15,6 +15,7 @@ const STEP = +arg('step', 100000);
 const OUT = path.join(__dirname, arg('out', PROD ? 'dist-prod' : 'dist'));
 const LANGS = ['en', 'fr', 'ru'].map((c) => require(`./data/i18n-${c}.js`));
 const X_DEFAULT = 'en';
+for (const L of LANGS) if (L._loc) for (const c of CITIES) if (c.ruLoc) L._loc[c.names.ru] = c.ruLoc;
 const PHONE = '+972-53-658-4252';
 const TEL = '+972536584252';
 const WA = '972536584252';
@@ -121,7 +122,7 @@ function model(L, page) {
   } else if (page.type === 'city') {
     const c = page.city;
     const it = page.intent;
-    const name = c.names[l];
+    const name = c.names[l] || c.names.en;
     const K = L.city;
     const I = K.intents[it];
     const d = L.districts[c.district];
@@ -153,7 +154,8 @@ function model(L, page) {
     const otherIt = it === 'foreign' ? 'oleh' : 'foreign';
     Object.assign(m, { title: I.title(name), desc: I.desc(name), h1: I.h1(name), lead: I.intro(name), body, faq: K.faq(name, it, ex, taxes(ex)), sources: [...new Set(src)] });
     m.related = [[`city:${c.id}:${otherIt}`, K.intents[otherIt].h1(name)]]
-      .concat(CITIES.filter((o) => o.id !== c.id).map((o) => [`city:${o.id}:${it}`, I.h1(o.names[l])]))
+      .concat(CITIES.filter((o) => o.id !== c.id && o.district === c.district).slice(0, 8).map((o) => [`city:${o.id}:${it}`, I.h1(o.names[l] || o.names.en)]))
+      .concat([['cityIndex', K.index.h1]])
       .concat([['guide:' + (it === 'foreign' ? 'foreign-buyer' : 'oleh'), L.guides.find((g) => g.id === (it === 'foreign' ? 'foreign-buyer' : 'oleh')).title], ['service', L.service.h1]]);
     m.crumbs.push(['cityIndex', L.nav.cities], [null, `${name} \u2013 ${I.label}`]);
   } else if (page.key === 'guidesIndex') {
@@ -168,7 +170,7 @@ function model(L, page) {
     m.crumbs.push([null, L.nav.tax]);
   } else if (page.key === 'cityIndex') {
     const K = L.city;
-    Object.assign(m, { title: K.index.title, desc: K.index.desc, h1: K.index.h1, lead: K.index.lead, sources: ['cbsLocalities'], body: '<ul class="list">' + CITIES.map((c) => `<li><strong>${esc(c.names[l])}</strong><br>` + INTENTS.map((it) => link(L, page, `city:${c.id}:${it}`, K.intents[it].label)).join(' · ') + '</li>').join('') + '</ul>' });
+    Object.assign(m, { title: K.index.title, desc: K.index.desc, h1: K.index.h1, lead: K.index.lead, sources: ['cbsLocalities'], body: '<ul class="list">' + CITIES.map((c) => `<li><strong>${esc(c.names[l] || c.names.en)}</strong><br>` + INTENTS.map((it) => link(L, page, `city:${c.id}:${it}`, K.intents[it].label)).join(' · ') + '</li>').join('') + '</ul>' });
     m.crumbs.push([null, L.nav.cities]);
   }
   m.title = plain(L, m.title); m.desc = plain(L, m.desc); m.h1 = plain(L, m.h1); if (m.lead) m.lead = plain(L, m.lead);
@@ -189,7 +191,7 @@ function render(L, page) {
   if (page.type === 'hub' || page.type === 'service') ld.push({ '@context': 'https://schema.org', '@type': 'RealEstateAgent', name: L.brand, url: 'https://www.kobielkayamrealestateltd.com/', telephone: PHONE, email: MAIL, foundingDate: '2013', address: { '@type': 'PostalAddress', addressLocality: 'Tel Aviv', addressCountry: 'IL' }, areaServed: 'IL', knowsLanguage: ['he', 'en', 'fr'] });
   const noindex = !PROD || page.draft;
   const wa = `https://wa.me/${WA}?text=${encodeURIComponent(L.ui.waMsg(m.h1))}`;
-  const srcHtml = m.sources.length ? `<section class="sources"><h2>${esc(L.ui.sources)}</h2><ul>` + m.sources.map((s) => `<li>${SRC[s] ? `<a href="${SRC[s].url}" rel="nofollow noopener">${esc(L.src[s])}</a>` : esc(L.src[s])}</li>`).join('') + `</ul><p>${esc(typo(L, L.ui.lastVerified))} ${esc(fmtDate(L, page.type === 'city' || page.key === 'cityIndex' ? CITY_VERIFIED : taxLib.VERIFIED))}.</p></section>` : '';
+  const srcHtml = m.sources.length ? `<section class="sources"><h2>${esc(L.ui.sources)}</h2><ul>` + m.sources.map((s) => `<li>${SRC[s] ? `<a href="${SRC[s].url}" rel="nofollow noopener">${esc(L.src[s])}</a>` : esc(L.src[s])}</li>`).join('') + `</ul><p>${esc(typo(L, L.ui.lastVerified))} ${esc(fmtDate(L, page.type === 'city' || page.key === 'cityIndex' ? CITY_VERIFIED : taxLib.VERIFIED).replace(/\.$/, ''))}.</p></section>` : '';
   return `<!doctype html>
 <html lang="${L.htmlLang}">
 <head>

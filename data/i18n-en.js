@@ -20,7 +20,7 @@ module.exports = {
     draft: 'Draft: the description of the service on this page is waiting for confirmation by the company.',
     about: 'Kobi Elkayam Real Estate Ltd is a real estate development company founded in 2013 and based in Tel Aviv. It works in development, urban renewal and combination deals, and accompanies buyers who live abroad.',
   },
-  districts: { jerusalem: 'Jerusalem District', central: 'Central District', haifa: 'Haifa District', southern: 'Southern District', northern: 'Northern District' },
+  districts: { telaviv: 'Tel Aviv District', jerusalem: 'Jerusalem District', central: 'Central District', haifa: 'Haifa District', southern: 'Southern District', northern: 'Northern District' },
   src: {
     tax: 'Israel Tax Authority, purchase tax simulator and brackets (gov.il); Kol Zchut, purchase tax discount for new immigrants',
     nbn: 'Nefesh B\'Nefesh, purchase tax summary (updated April 2026)',

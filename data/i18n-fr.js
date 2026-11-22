@@ -20,7 +20,7 @@ module.exports = {
     draft: 'Brouillon : la description du service sur cette page attend la confirmation de la société.',
     about: 'Kobi Elkayam Real Estate Ltd est une société de promotion immobilière fondée en 2013 et basée à Tel-Aviv. Elle intervient en promotion, en rénovation urbaine et en opérations de combinaison, et accompagne les acheteurs qui vivent à l\'étranger.',
   },
-  districts: { jerusalem: 'district de Jérusalem', central: 'district du Centre', haifa: 'district de Haïfa', southern: 'district du Sud', northern: 'district du Nord' },
+  districts: { telaviv: 'district de Tel-Aviv', jerusalem: 'district de Jérusalem', central: 'district du Centre', haifa: 'district de Haïfa', southern: 'district du Sud', northern: 'district du Nord' },
   src: {
     tax: 'Administration fiscale israélienne, simulateur et barèmes de la taxe d\'acquisition (gov.il) ; Kol Zchut, réduction de la taxe d\'acquisition pour les nouveaux immigrants',
     nbn: 'Nefesh B\'Nefesh, synthèse sur la taxe d\'acquisition (mise à jour d\'avril 2026)',
