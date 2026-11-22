@@ -1,0 +1,6 @@
+dist/
+dist-prod/
+preview/
+artifact/
+node_modules/
+.vercel/
