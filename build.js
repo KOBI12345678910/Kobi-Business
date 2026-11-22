@@ -13,7 +13,7 @@ const SITE = (process.env.SITE_URL || 'https://global.kobielkayamrealestateltd.c
 const arg = (n, d) => { const m = process.argv.find((x) => x.startsWith('--' + n + '=')); return m ? m.split('=')[1] : d; };
 const STEP = +arg('step', 100000);
 const OUT = path.join(__dirname, arg('out', PROD ? 'dist-prod' : 'dist'));
-const LANGS = ['en', 'fr', 'ru'].map((c) => require(`./data/i18n-${c}.js`));
+const LANGS = ['en', 'fr', 'ru', 'es'].map((c) => require(`./data/i18n-${c}.js`));
 const X_DEFAULT = 'en';
 for (const L of LANGS) if (L._loc) for (const c of CITIES) if (c.ruLoc) L._loc[c.names.ru] = c.ruLoc;
 const PHONE = '+972-53-658-4252';
@@ -57,7 +57,7 @@ function href(from, to) {
 const get = (lang, key) => { const p = byKey.get(lang + '|' + key); if (!p) throw new Error(`missing page ${lang}|${key}`); return p; };
 
 // ---------- text helpers ----------
-function typo(L, s) { return L.code === 'fr' ? s.replace(/ ([%:;?!])/g, '\u00a0$1') : s; }
+function typo(L, s) { return L.code === 'fr' ? s.replace(/ ([%:;?!])/g, '\u00a0$1') : L.code === 'es' ? s.replace(/ %/g, '\u00a0%') : s; }
 function tokens(L, s) {
   return String(s)
     .replace(/\{\{ils:(\d+)\}\}/g, (_, n) => L.ils(+n))

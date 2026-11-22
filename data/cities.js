@@ -132,6 +132,8 @@ CITIES.push({
   id: 'bnei-brak', names: { en: 'Bnei Brak', fr: 'Bnei Brak', ru: 'Бней-Брак' }, ruLoc: 'в Бней-Браке', district: 'telaviv', kind: 'city', founded: null,
   pop: 229995, cluster: null, price: { scope: 'city', q2_2026: 2310300, y2025: 2355100 }, rent: null, renewal: 3, train: false,
 });
+const ES = { tiberias: 'Tiberíades', caesarea: 'Cesarea', akko: 'Acre', safed: 'Safed', eilat: 'Eilat' };
+for (const x of CITIES) if (ES[x.id]) x.names.es = ES[x.id];
 CITIES.sort((a, b) => a.names.en.localeCompare(b.names.en));
 
 // date on which the city figures were checked against the sources on the main site

@@ -189,7 +189,7 @@ module.exports = {
     title: (st, p) => `Taxe d'acquisition sur un appartement à ${ils(p)} pour ${st === 'foreign' ? 'un résident étranger' : 'un olé hadash'} (2026)`,
     desc: (st, p, t) => `${st === 'foreign' ? 'Un résident étranger' : 'Un olé hadash'} qui achète un appartement à ${ils(p)} en Israël paie ${ils(t)} de taxe d'acquisition, soit ${eff(t, p)} du prix. Calcul tranche par tranche et comparaison.`,
     h1: (st, p) => `Taxe d'acquisition sur un appartement à ${ils(p)} : ${st === 'foreign' ? 'résident étranger' : 'olé hadash'}`,
-    intro: (st, p, t) => `${st === 'foreign' ? 'Un résident étranger' : 'Un olé qui achète le logement qu\'il habitera'} et qui achète un appartement en Israël pour ${ils(p)} paie ${ils(t)} de taxe d'acquisition (mas rechisha). Cela représente ${eff(t, p)} du prix, selon le barème en vigueur en 2026.`,
+    intro: (st, p, t) => `${st === 'foreign' ? `Un résident étranger qui achète un appartement en Israël pour ${ils(p)}` : `Un olé qui achète en Israël, pour ${ils(p)}, le logement qu'il habitera`} paie ${ils(t)} de taxe d'acquisition (mas rechisha). Cela représente ${eff(t, p)} du prix, selon le barème en vigueur en 2026.`,
     breakdownTitle: 'Le calcul, tranche par tranche',
     row: (r) => `De ${ils(r.from)} à ${ils(r.to)} à ${pct(r.rate)} : ${ils(r.tax)}`,
     total: (t) => `Taxe d'acquisition totale : ${ils(t)}`,
