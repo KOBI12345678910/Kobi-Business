@@ -226,4 +226,43 @@ T.ru = {
   index: { title: (p) => `${p}: цены и аренда квартир по размеру (2026)`, desc: (p) => `Официальные средние цены и аренда (${p}) для каждого размера квартиры с налогом на покупку при каждой средней цене.`, h1: (p) => `${p}: цены и аренда по размеру квартиры`, lead: () => 'Средние данные Центрального статистического бюро за апрель–июнь 2026 года и за 2025 год по числу комнат.', line: (s, p) => `${s} ${w(s)}: ${p}` },
 };
 
+const delIt = (p) => (/^(8|11(?!\d)|1(?!\d))/.test(p) ? "dell'" : 'del ') + p;
+const atIt = (p) => (/^Distretto/.test(p) ? 'nel ' : 'a ') + p;
+T.it = {
+  base: 'prezzi-appartamenti',
+  size: (s) => s.replace(/\./g, ',').replace('-', '–'),
+  rooms: (s) => `${s.replace(/\./g, ',').replace('-', '–')} vani`,
+  title: (v) => `${v.place}: prezzi e affitti degli appartamenti di ${v.size} vani (2026)`,
+  desc: (v) => `Medie ufficiali dell'Ufficio centrale di statistica per gli appartamenti di ${v.size} vani ${atIt(v.place)}: ${v.q2} da aprile a giugno 2026, affitto e imposta di acquisto.`,
+  h1: (v) => `Appartamenti di ${v.size} vani ${atIt(v.place)}: prezzo e affitto`,
+  lead: (v) => `A quale prezzo sono stati venduti e affittati gli appartamenti di ${v.size} vani ${atIt(v.place)}, secondo l'Ufficio centrale di statistica, e l'imposta di acquisto al prezzo medio. In Israele il soggiorno conta come un vano.`,
+  priceTitle: 'Prezzo medio di vendita',
+  q2: (v) => `Da aprile a giugno 2026: ${v.q2}, su ${v.q2n} transazioni (dato provvisorio).`,
+  q1: (v) => `Da gennaio a marzo 2026: ${v.q1}.`,
+  y25: (v) => `Media 2025: ${v.y25}, su ${v.y25n} transazioni.`,
+  y24: (v) => `Media 2024: ${v.y24}.`,
+  chg: (v) => `La media da aprile a giugno 2026 è ${v.chg} media 2025.`,
+  up: (p) => `superiore ${delIt(p)} alla`, down: (p) => `inferiore ${delIt(p)} alla`, same: 'pari alla',
+  rentTitle: 'Affitto mensile medio sul mercato libero',
+  rentSize: (s) => `Dati per appartamenti di ${s} vani.`,
+  rentQ2: (v) => `Da aprile a giugno 2026: ${v.rentQ2}.`,
+  rentY: (v) => `Media 2025: ${v.rentY}.`,
+  taxTitle: 'L\'imposta di acquisto al prezzo medio',
+  taxAt: (v) => `Per un appartamento al prezzo medio da aprile a giugno 2026, ${v.q2}:`,
+  notesTitle: 'Come leggere queste cifre',
+  notes: [
+    'Le medie riguardano gli appartamenti venduti sul mercato libero nel periodo, quindi riflettono anche quali appartamenti sono stati venduti, non solo l\'andamento dei prezzi.',
+    'Una media è un punto di partenza. Confronti un appartamento specifico con le transazioni registrate nella stessa via su nadlan.gov.il.',
+  ],
+  small: 'Nel trimestre sono state registrate meno di 50 transazioni in questo gruppo, quindi la media trimestrale può variare molto da un trimestre all\'altro.',
+  othersTitle: (p) => `Altre dimensioni di appartamento ${atIt(p)}`,
+  cityLink: (p) => `Acquistare ${atIt(p)}: cifre ufficiali e imposta`,
+  districtCities: (d) => `Città con cifre proprie (${d})`,
+  faq: (v) => [
+    [`Qual è il prezzo medio di un appartamento di ${v.size} vani ${atIt(v.place)}?`, `${v.q2} da aprile a giugno 2026, secondo l'Ufficio centrale di statistica (dato provvisorio, ${v.q2n} transazioni). La media 2025 è stata di ${v.y25}.`],
+    ['Quanta imposta di acquisto pagherebbe chi risiede all\'estero a quel prezzo?', `${v.taxForeign}. Un olè che acquista la sua casa entro il periodo agevolato pagherebbe ${v.taxOleh}.`],
+  ],
+  index: { title: (p) => `${p}: prezzi e affitti per dimensione dell'appartamento (2026)`, desc: (p) => `Prezzi e affitti medi ufficiali ${atIt(p)} per ogni dimensione di appartamento, con l'imposta di acquisto a ogni prezzo medio.`, h1: (p) => `${p}: prezzi e affitti per dimensione dell'appartamento`, lead: () => 'Medie dell\'Ufficio centrale di statistica per aprile-giugno 2026 e per il 2025, per numero di vani.', line: (s, p) => `${s} vani: ${p}` },
+};
+
 module.exports = T;

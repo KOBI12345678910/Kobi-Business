@@ -386,4 +386,68 @@ T.ru = {
   },
 };
 
+T.it = {
+  base: 'rinnovamento-urbano',
+  src: 'Ministero delle Costruzioni e dell\'Edilizia abitativa, banca dati delle aree di rinnovamento urbano su data.gov.il (aggiornata al 21 novembre 2026)',
+  mavat: 'Amministrazione della pianificazione, fascicolo del piano sul portale nazionale della pianificazione (mavat)',
+  status: {
+    initial: ['Pianificazione iniziale', 'Non è ancora stato presentato un piano urbanistico, quindi portata e tempi restano aperti.'],
+    statutory: ['Pianificazione urbanistica', 'Un piano è all\'esame delle commissioni di pianificazione e non è stato approvato.'],
+    approved: ['Piano approvato, non attuato', 'Il piano è approvato, ma la sua attuazione non è iniziata.'],
+    implementation: ['Piano approvato, in attuazione', 'Il piano è approvato e la sua attuazione è iniziata.'],
+    permits: ['Piano approvato, permessi di costruire rilasciati', 'Il piano è approvato e i permessi di costruire sono stati rilasciati.'],
+  },
+  track: { tax: 'percorso fiscale (agevolazioni fiscali della legge sulla tassazione immobiliare)', authorities: 'percorso comunale (guidato dal comune)', undeclared: 'non ancora dichiarato' },
+  title: (v) => `Area di rinnovamento urbano «${v.name}», ${v.city}: stato e piano (n. ${v.n})`,
+  desc: (v) => `${v.status} nell'area n. ${v.n}, ${v.city}` + (v.existing && v.proposed ? `: ${v.existing} abitazioni esistenti e ${v.proposed} proposte` : '') + ', secondo la banca dati del Ministero delle Costruzioni e dell\'Edilizia abitativa.',
+  h1: (v) => `Area di rinnovamento urbano «${v.name}», ${v.city}`,
+  lead: (v) => `I dati ufficiali dell'area n. ${v.n} nella banca dati del Ministero delle Costruzioni e dell'Edilizia abitativa, e che cosa significano se acquista un appartamento nell'area o accanto.`,
+  figsTitle: 'L\'area in dati ufficiali',
+  figs: {
+    id: (v) => `Area n. ${v.n}, ${v.city}. Nome nella banca dati (in ebraico): ${v.name}.`,
+    status: (v) => `Stato: ${v.status}. ${v.statusText}`,
+    units: (v) => `Abitazioni esistenti: ${v.existing}. Abitazioni proposte: ${v.proposed}.`,
+    existing: (v) => `Abitazioni esistenti: ${v.existing}.`,
+    proposed: (v) => `Abitazioni proposte: ${v.proposed}.`,
+    track: (v) => `Percorso: ${v.track}.`,
+    declared: (v) => `Dichiarata area di rinnovamento urbano il ${v.declared}.`,
+    plan: (v) => `Numero del piano: ${v.plan}.`,
+    inForce: (v) => `Piano in vigore dal ${v.inForce}.`,
+  },
+  links: { mavat: 'Fascicolo del piano sul portale nazionale della pianificazione', map: 'L\'area sulla mappa del governo' },
+  checkTitle: 'Che cosa verificare prima di acquistare in un\'area di rinnovamento',
+  check: [
+    'Se i proprietari hanno firmato un accordo con un costruttore, e quale quota di loro lo ha firmato.',
+    'Le garanzie che il costruttore dà ai proprietari, e chi paga l\'alloggio temporaneo durante i lavori.',
+    'La fase di pianificazione sul portale nazionale della pianificazione: un appartamento non vale lo stesso prima e dopo l\'approvazione di un piano.',
+    'Che cosa dà l\'accordo a ogni appartamento esistente (un appartamento nuovo più grande, posto auto, cantina) e quanto dovrebbero durare i lavori.',
+  ],
+  taxTitle: 'L\'imposta di acquisto',
+  taxCity: (c) => `L'imposta di acquisto dipende dal prezzo e dalla sua posizione, non dall'area. La pagina di ${c} riporta i prezzi ufficiali e l'imposta a quei prezzi.`,
+  taxNoCity: 'L\'imposta di acquisto dipende dal prezzo e dalla sua posizione, non dall\'area.',
+  cityLink: (c) => `Acquistare a ${c}: cifre ufficiali e imposta`,
+  calcLink: 'L\'imposta di acquisto per ogni prezzo',
+  othersTitle: (c) => `Altre aree di rinnovamento a ${c}`,
+  allLink: (c) => `Tutte le aree di rinnovamento urbano a ${c}`,
+  faq: (v) => [
+    [`In quale fase si trova l'area «${v.name}» a ${v.city}?`, `${v.status}. ${v.statusText} È lo stato riportato nella banca dati del Ministero delle Costruzioni e dell'Edilizia abitativa aggiornata al 21 novembre 2026.`],
+  ].concat(v.existing && v.proposed ? [[`Quante abitazioni propone il piano di «${v.name}»?`, `${v.proposed} abitazioni, al posto di ${v.existing} abitazioni esistenti, secondo la banca dati.`]] : [])
+    .concat([['Acquistare in un\'area di rinnovamento cambia l\'imposta di acquisto?', 'No. L\'imposta dipende dal prezzo e dalla sua posizione: residente all\'estero, olè o residente in Israele. Chieda al suo avvocato degli altri aspetti fiscali di un\'operazione di rinnovamento.']]),
+  cityPage: {
+    title: (c, n) => `Rinnovamento urbano a ${c}: ${n} aree, stato e abitazioni`,
+    desc: (c, n) => `Le ${n} aree di rinnovamento urbano di ${c} nella banca dati del Ministero delle Costruzioni e dell'Edilizia abitativa, con stato e abitazioni, per chi acquista dall'estero.`,
+    h1: (c) => `Aree di rinnovamento urbano a ${c}`,
+    lead: (c, n) => `Nella banca dati del Ministero delle Costruzioni e dell'Edilizia abitativa, aggiornata al 21 novembre 2026, risultano ${n} aree a ${c}. Ogni pagina riporta i dati ufficiali dell'area e che cosa verificare prima di acquistare.`,
+    units: (e, p) => `${e} abitazioni esistenti, ${p} proposte`,
+  },
+  index: {
+    nav: 'Rinnovamento urbano',
+    title: 'Rinnovamento urbano in Israele per città: dati ufficiali per chi acquista dall\'estero',
+    desc: 'Tutte le aree di rinnovamento urbano della banca dati del Ministero delle Costruzioni e dell\'Edilizia abitativa, per città, con stato e abitazioni, per residenti all\'estero e olim.',
+    h1: 'Aree di rinnovamento urbano in Israele, per città',
+    lead: (n) => `${n} aree della banca dati del Ministero delle Costruzioni e dell'Edilizia abitativa aggiornata al 21 novembre 2026. In un'area di rinnovamento un edificio vecchio viene demolito e ricostruito, oppure rinforzato e ampliato, e questo cambia il valore dei suoi appartamenti.`,
+    count: (n) => n === 1 ? '1 area' : `${n} aree`,
+  },
+};
+
 module.exports = T;
