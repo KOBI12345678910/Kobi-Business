@@ -13,9 +13,24 @@ const SITE = (process.env.SITE_URL || 'https://global.kobielkayamrealestateltd.c
 const arg = (n, d) => { const m = process.argv.find((x) => x.startsWith('--' + n + '=')); return m ? m.split('=')[1] : d; };
 const STEP = +arg('step', 100000);
 const OUT = path.join(__dirname, arg('out', PROD ? 'dist-prod' : 'dist'));
-const LANGS = ['en', 'fr', 'ru', 'es'].map((c) => require(`./data/i18n-${c}.js`));
+const { BIG_CITIES, HOODS, PLACE_SRC } = require('./data/places.js');
+Object.assign(SRC, PLACE_SRC);
+const LANGS = ['en', 'fr', 'ru', 'es', 'de'].map((c) => require(`./data/i18n-${c}.js`));
 const X_DEFAULT = 'en';
-for (const L of LANGS) if (L._loc) for (const c of CITIES) if (c.ruLoc) L._loc[c.names.ru] = c.ruLoc;
+// Large cities and neighbourhoods are built only for languages that have data/places-<lang>.js.
+for (const L of LANGS) {
+  const f = path.join(__dirname, 'data', `places-${L.code}.js`);
+  L.P = fs.existsSync(f) ? require(f)(L) : null;
+  if (!L.P) continue;
+  Object.assign(L.src, L.P.src);
+  for (const h of HOODS) if (!Array.isArray(L.P.facts[h.id]) || L.P.facts[h.id].length !== h.facts) throw new Error(`places-${L.code}: ${h.id} needs ${h.facts} facts`);
+  for (const id of Object.keys(L.P.facts)) if (!HOODS.some((h) => h.id === id)) throw new Error(`places-${L.code}: unknown neighbourhood ${id}`);
+}
+const ALL_CITIES = CITIES.concat(BIG_CITIES).sort((a, b) => a.names.en.localeCompare(b.names.en));
+const cityList = (L) => ALL_CITIES.filter((c) => !c.big || L.P);
+const BIG = new Map(BIG_CITIES.map((c) => [c.id, c]));
+const hoodName = (L, h) => { const nm = L.P.names[h.id] || {}; const n = nm.n || h.name; const the = nm.the || n; return { n, the, in: nm.in || L.P.inOf(the) }; };
+for (const L of LANGS) if (L._loc) for (const c of ALL_CITIES) if (c.ruLoc) L._loc[c.names.ru] = c.ruLoc;
 const PHONE = '+972-53-658-4252';
 const TEL = '+972536584252';
 const WA = '972536584252';
@@ -44,7 +59,11 @@ for (const L of LANGS) {
   reg({ key: 'calcIndex', lang: l, type: 'index', path: `${l}/${L.calc.base}/index` });
   for (const st of STATUSES) for (const p of PRICES) reg({ key: `calc:${st}:${p}`, lang: l, type: 'calc', path: `${l}/${L.calc.base}/${L.statuses[st].slug}/${p}`, st, price: p });
   reg({ key: 'cityIndex', lang: l, type: 'index', path: `${l}/${L.city.base}/index` });
-  for (const c of CITIES) for (const it of INTENTS) reg({ key: `city:${c.id}:${it}`, lang: l, type: 'city', path: `${l}/${L.city.base}/${c.id}/${L.city.intents[it].slug}`, city: c, intent: it });
+  for (const c of cityList(L)) for (const it of INTENTS) reg({ key: `city:${c.id}:${it}`, lang: l, type: 'city', path: `${l}/${L.city.base}/${c.id}/${L.city.intents[it].slug}`, city: c, intent: it });
+  if (L.P) {
+    reg({ key: 'hoodIndex', lang: l, type: 'index', path: `${l}/${L.city.base}/${L.P.base}/index` });
+    for (const h of HOODS) for (const it of INTENTS) reg({ key: `hood:${h.id}:${it}`, lang: l, type: 'hood', path: `${l}/${L.city.base}/${h.city}/${h.id}/${L.city.intents[it].slug}`, hood: h, intent: it });
+  }
 }
 
 // ---------- urls ----------
@@ -57,7 +76,7 @@ function href(from, to) {
 const get = (lang, key) => { const p = byKey.get(lang + '|' + key); if (!p) throw new Error(`missing page ${lang}|${key}`); return p; };
 
 // ---------- text helpers ----------
-function typo(L, s) { return L.code === 'fr' ? s.replace(/ ([%:;?!])/g, '\u00a0$1') : L.code === 'es' ? s.replace(/ %/g, '\u00a0%') : s; }
+function typo(L, s) { return L.code === 'fr' ? s.replace(/ ([%:;?!])/g, '\u00a0$1') : (L.code === 'es' || L.code === 'de') ? s.replace(/ %/g, '\u00a0%') : s; }
 function tokens(L, s) {
   return String(s)
     .replace(/\{\{ils:(\d+)\}\}/g, (_, n) => L.ils(+n))
@@ -86,12 +105,33 @@ const fmtDate = (L, iso) => new Intl.DateTimeFormat(L.code, { day: 'numeric', mo
 const link = (L, page, key, text) => `<a href="${href(page.path, get(L.code, key).path)}">${esc(typo(L, text))}</a>`;
 
 // ---------- page models ----------
+const li = (L, t) => `<li>${esc(typo(L, t))}</li>`;
+// Facts and sources for a city. Lines without data are left out.
+function cityFacts(L, c, name) {
+  const K = L.city;
+  const d = L.districts[c.district];
+  const facts = [K.facts.where(name, c.kind, d, c.founded), c.popKey ? L.P.city.pop[c.popKey] : K.facts.pop(c.pop)];
+  const src = [c.popSrc || 'cbsLocalities'];
+  if (c.cluster) { facts.push(K.facts.cluster(c.cluster, c.clusterYear)); src.push(c.clusterSrc || 'cbsLocalities'); }
+  if (c.price && c.price.scope === 'city') facts.push(c.price.y2025 ? K.facts.priceCity(name, c.price.q2_2026, c.price.y2025) : L.P.city.priceQ(name, c.price.q2_2026));
+  else if (c.price) facts.push(K.facts.priceDistrict(name, d, c.price.q2_2026));
+  else facts.push(K.facts.noPrice(name));
+  if (c.price) src.push('cbsPrices');
+  if (c.rent && c.rent.scope === 'city') facts.push(c.rent.y2025 ? K.facts.rentCity(c.rent.q2_2026, c.rent.y2025) : L.P.city.rentQ(c.rent.q2_2026));
+  else if (c.rent) facts.push(K.facts.rentDistrict(d, c.rent.q2_2026));
+  if (c.rent) src.push('cbsRent');
+  if (c.renewal !== null) { facts.push(K.facts.renewal(name, c.renewal)); src.push('renewal'); }
+  if (c.train) { facts.push(K.facts.train(name)); src.push('rail'); }
+  if (c.big) { for (const t of (L.P.city.extra[c.id] || [])) facts.push(t); src.push(...c.extraSrc); }
+  return { facts, src };
+}
 function model(L, page) {
   const l = L.code;
   const m = { faq: [], sources: [], related: [], crumbs: [['hub', L.nav.home]] };
   if (page.type === 'hub') {
     Object.assign(m, { title: L.hub.title, desc: L.hub.desc, h1: L.hub.h1, lead: L.hub.lead, body: blocks(L, page, L.hub.blocks), crumbs: [] });
     m.sources = ['tax', 'boi'];
+    if (L.P) m.related = [['hoodIndex', L.P.index.h1]];
   } else if (page.type === 'service') {
     const s = L.service;
     Object.assign(m, { title: s.title, desc: s.desc, h1: s.h1, body: blocks(L, page, s.blocks), faq: s.faq });
@@ -125,18 +165,10 @@ function model(L, page) {
     const name = c.names[l] || c.names.en;
     const K = L.city;
     const I = K.intents[it];
-    const d = L.districts[c.district];
-    const facts = [K.facts.where(name, c.kind, d, c.founded), K.facts.pop(c.pop)];
-    if (c.cluster) facts.push(K.facts.cluster(c.cluster, c.clusterYear));
-    if (c.price && c.price.scope === 'city') facts.push(K.facts.priceCity(name, c.price.q2_2026, c.price.y2025));
-    else if (c.price) facts.push(K.facts.priceDistrict(name, d, c.price.q2_2026));
-    else facts.push(K.facts.noPrice(name));
-    if (c.rent && c.rent.scope === 'city') facts.push(K.facts.rentCity(c.rent.q2_2026, c.rent.y2025));
-    else if (c.rent) facts.push(K.facts.rentDistrict(d, c.rent.q2_2026));
-    if (c.renewal !== null) facts.push(K.facts.renewal(name, c.renewal));
-    if (c.train) facts.push(K.facts.train(name));
-    let body = `<h2>${esc(typo(L, K.factsTitle(name)))}</h2><ul>` + facts.map((t) => `<li>${esc(typo(L, t))}</li>`).join('') + '</ul>';
+    const { facts, src } = cityFacts(L, c, name);
+    let body = `<h2>${esc(typo(L, K.factsTitle(name)))}</h2><ul>` + facts.map((t) => li(L, t)).join('') + '</ul>';
     if (c.price) body += `<p>${esc(typo(L, K.facts.caveat))}</p>`;
+    if (c.big) body += `<h2>${esc(typo(L, L.P.city.hoodsTitle(name)))}</h2><p>${esc(typo(L, L.P.city.hoodsLead))}</p><ul class="cols">` + HOODS.filter((h) => h.city === c.id).map((h) => `<li>${link(L, page, `hood:${h.id}:${it}`, hoodName(L, h).n)}</li>`).join('') + '</ul>';
     const cityPrice = c.price && c.price.scope === 'city' ? c.price.q2_2026 : null;
     const ex = cityPrice ? nearestPrice(cityPrice) : 3000000;
     body += `<h2>${esc(typo(L, K.taxTitle(name)))}</h2>`;
@@ -144,20 +176,50 @@ function model(L, page) {
     else body += `<p>${esc(typo(L, K.taxExamples))}</p><ul>` + CITY_EXAMPLES.map((p) => `<li>${esc(typo(L, K.taxLine(p, taxes(p))))}</li>`).join('') + '</ul>';
     body += `<p>${link(L, page, `calc:${it}:${ex}`, L.calc.h1(it, ex))} · ${link(L, page, 'calcIndex', K.taxMore)}</p>`;
     body += `<h2>${esc(typo(L, K.stepsTitle[it]))}</h2><ol>` + K.steps[it].map((t) => `<li>${esc(typo(L, t))}</li>`).join('') + '</ol>';
-    const src = ['cbsLocalities'];
-    if (c.cluster) src.push('cbsLocalities');
-    if (c.price) src.push('cbsPrices');
-    if (c.rent) src.push('cbsRent');
-    if (c.renewal !== null) src.push('renewal');
-    if (c.train) src.push('rail');
     src.push('tax', 'boi');
     const otherIt = it === 'foreign' ? 'oleh' : 'foreign';
     Object.assign(m, { title: I.title(name), desc: I.desc(name), h1: I.h1(name), lead: I.intro(name), body, faq: K.faq(name, it, ex, taxes(ex)), sources: [...new Set(src)] });
     m.related = [[`city:${c.id}:${otherIt}`, K.intents[otherIt].h1(name)]]
-      .concat(CITIES.filter((o) => o.id !== c.id && o.district === c.district).slice(0, 8).map((o) => [`city:${o.id}:${it}`, I.h1(o.names[l] || o.names.en)]))
+      .concat(cityList(L).filter((o) => o.id !== c.id && o.district === c.district).slice(0, 8).map((o) => [`city:${o.id}:${it}`, I.h1(o.names[l] || o.names.en)]))
       .concat([['cityIndex', K.index.h1]])
       .concat([['guide:' + (it === 'foreign' ? 'foreign-buyer' : 'oleh'), L.guides.find((g) => g.id === (it === 'foreign' ? 'foreign-buyer' : 'oleh')).title], ['service', L.service.h1]]);
     m.crumbs.push(['cityIndex', L.nav.cities], [null, `${name} \u2013 ${I.label}`]);
+  } else if (page.type === 'hood') {
+    const h = page.hood;
+    const it = page.intent;
+    const P = L.P;
+    const T = P.hood;
+    const K = L.city;
+    const c = BIG.get(h.city);
+    const cname = c.names[l] || c.names.en;
+    const hh = hoodName(L, h);
+    const { facts, src } = cityFacts(L, c, cname);
+    let body = `<h2>${esc(typo(L, T.aboutTitle(hh)))}</h2><ul>` + P.facts[h.id].map((t) => li(L, t)).join('') + '</ul>';
+    body += `<h2>${esc(typo(L, T.cityTitle(cname)))}</h2><p>${esc(typo(L, T.cityNote(hh, cname)))}</p><ul>` + facts.slice(1).map((t) => li(L, t)).join('') + '</ul>';
+    body += `<p>${esc(typo(L, T.advice(hh))).replace('nadlan.gov.il', '<a href="https://www.nadlan.gov.il/" rel="nofollow noopener">nadlan.gov.il</a>')}</p>`;
+    const cityPrice = c.price.q2_2026;
+    const ex = nearestPrice(cityPrice);
+    const x = taxes(ex);
+    body += `<h2>${esc(typo(L, T.taxTitle(hh)))}</h2><p>${esc(typo(L, T.taxAtAvg(cname, L.ils(cityPrice))))}</p><ul>` + L.calc.compare(cityPrice, taxes(cityPrice)).map((t) => li(L, t)).join('') + '</ul>';
+    body += `<p>${link(L, page, `calc:${it}:${ex}`, L.calc.h1(it, ex))} · ${link(L, page, 'calcIndex', K.taxMore)}</p>`;
+    body += `<h2>${esc(typo(L, K.stepsTitle[it]))}</h2><ol>` + K.steps[it].map((t) => li(L, t)).join('') + '</ol>';
+    const v = { p: L.ils(ex), foreign: L.ils(x.foreign), oleh: L.ils(x.oleh), t1: L.ils(1978745), t3: L.ils(6055070), avg: L.ils(cityPrice) };
+    const otherIt = it === 'foreign' ? 'oleh' : 'foreign';
+    const sib = HOODS.filter((o) => o.city === h.city);
+    const at = sib.indexOf(h);
+    const near = [1, 2, 3, 4, 5, 6].map((k) => sib[(at + k) % sib.length]).filter((o, i, a) => o !== h && a.indexOf(o) === i);
+    Object.assign(m, { title: T.title[it](hh, cname), desc: T.desc[it](hh, cname), h1: T.h1[it](hh, cname), lead: T.intro[it](hh, cname), body, faq: T.faq(hh, cname, it, v), sources: [...new Set(h.src.concat(src, ['tax', 'boi']))] });
+    m.related = [[`hood:${h.id}:${otherIt}`, T.h1[otherIt](hh, cname)], [`city:${c.id}:${it}`, T.cityLink(cname)]]
+      .concat(near.map((o) => [`hood:${o.id}:${it}`, T.h1[it](hoodName(L, o), cname)]))
+      .concat([['hoodIndex', P.index.h1], ['guide:' + (it === 'foreign' ? 'foreign-buyer' : 'oleh'), L.guides.find((g) => g.id === (it === 'foreign' ? 'foreign-buyer' : 'oleh')).title], ['service', L.service.h1]]);
+    m.crumbs.push(['cityIndex', L.nav.cities], [`city:${c.id}:${it}`, cname], [null, `${hh.n} \u2013 ${K.intents[it].label}`]);
+  } else if (page.key === 'hoodIndex') {
+    const P = L.P;
+    const K = L.city;
+    const body = BIG_CITIES.map((c) => `<h2>${esc(c.names[l] || c.names.en)}</h2><ul class="list">` + HOODS.filter((h) => h.city === c.id).map((h) => `<li><strong>${esc(hoodName(L, h).n)}</strong><br>` + INTENTS.map((it) => link(L, page, `hood:${h.id}:${it}`, K.intents[it].label)).join(' · ') + '</li>').join('') + '</ul>').join('');
+    Object.assign(m, { title: P.index.title, desc: P.index.desc, h1: P.index.h1, lead: P.index.lead, sources: ['wiki', 'cbsPrices'], body });
+    m.related = BIG_CITIES.map((c) => [`city:${c.id}:foreign`, K.intents.foreign.h1(c.names[l] || c.names.en)]).concat([['cityIndex', K.index.h1]]);
+    m.crumbs.push(['cityIndex', L.nav.cities], [null, P.index.nav]);
   } else if (page.key === 'guidesIndex') {
     const G = L.guidesIndex;
     Object.assign(m, { title: G.title, desc: G.desc, h1: G.h1, lead: G.lead, body: '<ul class="list">' + L.guides.map((g) => `<li>${link(L, page, 'guide:' + g.id, g.title)}<br><span>${esc(plain(L, g.desc))}</span></li>`).join('') + '</ul>' });
@@ -170,7 +232,8 @@ function model(L, page) {
     m.crumbs.push([null, L.nav.tax]);
   } else if (page.key === 'cityIndex') {
     const K = L.city;
-    Object.assign(m, { title: K.index.title, desc: K.index.desc, h1: K.index.h1, lead: K.index.lead, sources: ['cbsLocalities'], body: '<ul class="list">' + CITIES.map((c) => `<li><strong>${esc(c.names[l] || c.names.en)}</strong><br>` + INTENTS.map((it) => link(L, page, `city:${c.id}:${it}`, K.intents[it].label)).join(' · ') + '</li>').join('') + '</ul>' });
+    Object.assign(m, { title: K.index.title, desc: K.index.desc, h1: K.index.h1, lead: K.index.lead, sources: ['cbsLocalities'], body: '<ul class="list">' + cityList(L).map((c) => `<li><strong>${esc(c.names[l] || c.names.en)}</strong><br>` + INTENTS.map((it) => link(L, page, `city:${c.id}:${it}`, K.intents[it].label)).join(' · ') + '</li>').join('') + '</ul>' });
+    if (L.P) m.related = [['hoodIndex', L.P.index.h1]];
     m.crumbs.push([null, L.nav.cities]);
   }
   m.title = plain(L, m.title); m.desc = plain(L, m.desc); m.h1 = plain(L, m.h1); if (m.lead) m.lead = plain(L, m.lead);
@@ -191,7 +254,7 @@ function render(L, page) {
   if (page.type === 'hub' || page.type === 'service') ld.push({ '@context': 'https://schema.org', '@type': 'RealEstateAgent', name: L.brand, url: 'https://www.kobielkayamrealestateltd.com/', telephone: PHONE, email: MAIL, foundingDate: '2013', address: { '@type': 'PostalAddress', addressLocality: 'Tel Aviv', addressCountry: 'IL' }, areaServed: 'IL', knowsLanguage: ['he', 'en', 'fr'] });
   const noindex = !PROD || page.draft;
   const wa = `https://wa.me/${WA}?text=${encodeURIComponent(L.ui.waMsg(m.h1))}`;
-  const srcHtml = m.sources.length ? `<section class="sources"><h2>${esc(L.ui.sources)}</h2><ul>` + m.sources.map((s) => `<li>${SRC[s] ? `<a href="${SRC[s].url}" rel="nofollow noopener">${esc(L.src[s])}</a>` : esc(L.src[s])}</li>`).join('') + `</ul><p>${esc(typo(L, L.ui.lastVerified))} ${esc(fmtDate(L, page.type === 'city' || page.key === 'cityIndex' ? CITY_VERIFIED : taxLib.VERIFIED).replace(/\.$/, ''))}.</p></section>` : '';
+  const srcHtml = m.sources.length ? `<section class="sources"><h2>${esc(L.ui.sources)}</h2><ul>` + m.sources.map((s) => `<li>${SRC[s] ? `<a href="${SRC[s].url}" rel="nofollow noopener">${esc(L.src[s])}</a>` : esc(L.src[s])}</li>`).join('') + `</ul><p>${esc(typo(L, L.ui.lastVerified))} ${esc(fmtDate(L, page.type === 'city' || page.type === 'hood' || page.key === 'cityIndex' || page.key === 'hoodIndex' ? CITY_VERIFIED : taxLib.VERIFIED).replace(/\.$/, ''))}.</p></section>` : '';
   return `<!doctype html>
 <html lang="${L.htmlLang}">
 <head>
@@ -213,7 +276,7 @@ ${ld.map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(
 <body>
 <header class="top"><div class="wrap">
 <a class="brand" href="${href(page.path, get(L.code, 'hub').path)}">${esc(L.brand)}</a>
-<nav>${[['service', L.nav.service], ['guidesIndex', L.nav.guides], ['calcIndex', L.nav.tax], ['cityIndex', L.nav.cities]].map(([k, t]) => `<a href="${href(page.path, get(L.code, k).path)}">${esc(t)}</a>`).join('')}</nav>
+<nav>${[['service', L.nav.service], ['guidesIndex', L.nav.guides], ['calcIndex', L.nav.tax], ['cityIndex', L.nav.cities]].concat(L.P ? [['hoodIndex', L.P.index.nav]] : []).map(([k, t]) => `<a href="${href(page.path, get(L.code, k).path)}">${esc(t)}</a>`).join('')}</nav>
 <div class="langs">${alts.map((x) => x.code === L.code ? `<span aria-current="true">${esc(x.name)}</span>` : `<a href="${href(page.path, get(x.code, page.key).path)}" hreflang="${x.code}" lang="${x.code}">${esc(x.name)}</a>`).join('')}</div>
 </div></header>
 <main class="wrap">
@@ -243,6 +306,7 @@ const CSS = `:root{--ink:#16202b;--mut:#5b6875;--line:#dfe5ea;--bg:#f6f8fa;--acc
 .crumbs{font-size:14px;color:var(--mut);margin:22px 0 0}h1{font-size:34px;line-height:1.2;margin:18px 0 12px}h2{font-size:23px;line-height:1.3;margin:36px 0 10px}h3{font-size:18px;margin:22px 0 4px}
 .lead{font-size:19px;color:#2c3a47}li{margin:6px 0}.pager{margin-top:22px}
 table{border-collapse:collapse;width:100%;font-size:16px}th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left}thead th{background:var(--bg)}
+.cols{columns:2;column-gap:32px}@media(max-width:600px){.cols{columns:1}}
 .list{list-style:none;padding:0}.list li{padding:14px 0;border-bottom:1px solid var(--line)}.list span{color:var(--mut);font-size:15px}
 .cta{background:var(--acc2);border-radius:10px;padding:6px 24px 22px;margin:44px 0}.btns{display:flex;flex-wrap:wrap;gap:10px}
 .btn{background:var(--acc);color:#fff;text-decoration:none;padding:11px 20px;border-radius:8px;font-weight:600}.btn.alt{background:#fff;color:var(--acc);border:1px solid var(--acc)}
