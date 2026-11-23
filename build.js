@@ -15,7 +15,7 @@ const STEP = +arg('step', 100000);
 const OUT = path.join(__dirname, arg('out', PROD ? 'dist-prod' : 'dist'));
 const { BIG_CITIES, HOODS, PLACE_SRC } = require('./data/places.js');
 Object.assign(SRC, PLACE_SRC);
-const LANGS = ['en', 'fr', 'ru', 'es', 'de'].map((c) => require(`./data/i18n-${c}.js`));
+const LANGS = ['en', 'fr', 'ru', 'es', 'de', 'pt'].map((c) => require(`./data/i18n-${c}.js`));
 const X_DEFAULT = 'en';
 // Large cities and neighbourhoods are built only for languages that have data/places-<lang>.js.
 for (const L of LANGS) {

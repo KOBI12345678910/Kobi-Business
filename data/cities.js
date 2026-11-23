@@ -134,6 +134,8 @@ CITIES.push({
 });
 const ES = { tiberias: 'Tiberíades', caesarea: 'Cesarea', akko: 'Acre', safed: 'Safed', eilat: 'Eilat' };
 for (const x of CITIES) if (ES[x.id]) x.names.es = ES[x.id];
+const PT = { tiberias: 'Tiberíades', caesarea: 'Cesareia', akko: 'Acre' };
+for (const x of CITIES) if (PT[x.id]) x.names.pt = PT[x.id];
 CITIES.sort((a, b) => a.names.en.localeCompare(b.names.en));
 
 // date on which the city figures were checked against the sources on the main site
