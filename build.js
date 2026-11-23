@@ -15,7 +15,7 @@ const STEP = +arg('step', 100000);
 const OUT = path.join(__dirname, arg('out', PROD ? 'dist-prod' : 'dist'));
 const { BIG_CITIES, HOODS, PLACE_SRC } = require('./data/places.js');
 Object.assign(SRC, PLACE_SRC);
-const LANGS = ['en', 'fr', 'ru', 'es', 'de', 'pt', 'it'].map((c) => require(`./data/i18n-${c}.js`));
+const LANGS = ['en', 'fr', 'ru', 'es', 'de', 'pt', 'it', 'uk'].map((c) => require(`./data/i18n-${c}.js`));
 const X_DEFAULT = 'en';
 // Large cities and neighbourhoods are built only for languages that have data/places-<lang>.js.
 for (const L of LANGS) {
@@ -41,6 +41,9 @@ const cityList = (L) => ALL_CITIES.filter((c) => (!c.big || L.P) && (!c.langs ||
 const BIG = new Map(BIG_CITIES.map((c) => [c.id, c]));
 const hoodName = (L, h) => { const nm = L.P.names[h.id] || {}; const n = nm.n || h.name; const the = nm.the || n; return { n, the, in: nm.in || L.P.inOf(the) }; };
 // Urban renewal localities: existing city pages where we have them, extra localities otherwise.
+const { ukFromRu } = require('./data/uk-names.js');
+for (const c of ALL_CITIES) if (c.names.ru && !c.names.uk) c.names.uk = ukFromRu(c.names.ru);
+for (const e of Object.values(RN.EXTRA)) if (e.names.ru && !e.names.uk) e.names.uk = ukFromRu(e.names.ru);
 const CITY_BY_ID = new Map(ALL_CITIES.map((c) => [c.id, c]));
 const RLOC = [];
 {
