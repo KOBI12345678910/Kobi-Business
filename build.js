@@ -26,6 +26,12 @@ for (const L of LANGS) {
   for (const h of HOODS) if (!Array.isArray(L.P.facts[h.id]) || L.P.facts[h.id].length !== h.facts) throw new Error(`places-${L.code}: ${h.id} needs ${h.facts} facts`);
   for (const id of Object.keys(L.P.facts)) if (!HOODS.some((h) => h.id === id)) throw new Error(`places-${L.code}: unknown neighbourhood ${id}`);
 }
+const COUNTRIES = require('./data/countries.js');
+Object.assign(SRC, COUNTRIES.SRC);
+for (const L of LANGS) {
+  Object.assign(L.src, COUNTRIES.SRC_TEXT[L.code] || {});
+  for (const g of COUNTRIES.G[L.code] || []) { for (const k of g.sources) if (!L.src[k]) throw new Error(`${L.code}: missing source text ${k}`); L.guides.push(g); }
+}
 const ALL_CITIES = CITIES.concat(BIG_CITIES).sort((a, b) => a.names.en.localeCompare(b.names.en));
 const cityList = (L) => ALL_CITIES.filter((c) => !c.big || L.P);
 const BIG = new Map(BIG_CITIES.map((c) => [c.id, c]));

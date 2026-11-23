@@ -1,0 +1,161 @@
+// Guides by country of origin. Each guide exists only in the languages listed for it; English always included.
+// Facts checked 23 November 2026 against the official sources named in SRC.
+const SRC = {
+  frTreaty: { url: 'https://www.senat.fr/rap/l95-388/l95-3881.pdf' },
+  fr3916: { url: 'https://www.impots.gouv.fr/international-particulier/questions/je-viens-ou-je-reviens-en-france-et-je-ne-conserve-pas-dinterets' },
+  irsAbroad: { url: 'https://www.irs.gov/individuals/international-taxpayers/us-citizens-and-resident-aliens-abroad' },
+  irsFtc: { url: 'https://www.irs.gov/publications/p514' },
+  fbar: { url: 'https://www.fincen.gov/report-foreign-bank-and-financial-accounts' },
+  caTreaty: { url: 'https://www.canada.ca/en/department-finance/programs/tax-policy/tax-treaties/country/israel-convention-1975.html' },
+  t1135: { url: 'https://www.canada.ca/cra-foreign-income-verification' },
+};
+
+const SRC_TEXT = {
+  en: {
+    frTreaty: 'French Senate, report on the France–Israel tax convention of 31 July 1995',
+    fr3916: 'French tax administration (impots.gouv.fr), declaring accounts held abroad, form 3916-3916 bis',
+    irsAbroad: 'IRS, U.S. citizens and resident aliens abroad',
+    irsFtc: 'IRS, Publication 514, Foreign Tax Credit for Individuals',
+    fbar: 'FinCEN, Report Foreign Bank and Financial Accounts (FBAR)',
+    caTreaty: 'Government of Canada, Canada–Israel tax convention of 21 July 1975',
+    t1135: 'Canada Revenue Agency, Form T1135 Foreign Income Verification Statement',
+  },
+  fr: {
+    frTreaty: 'Sénat, rapport sur la convention fiscale franco-israélienne du 31 juillet 1995',
+    fr3916: 'Administration fiscale (impots.gouv.fr), déclaration des comptes détenus à l\'étranger, formulaire 3916-3916 bis',
+    caTreaty: 'Gouvernement du Canada, convention fiscale Canada–Israël du 21 juillet 1975',
+    t1135: 'Agence du revenu du Canada, formulaire T1135, Bilan de vérification du revenu étranger',
+  },
+};
+
+const G = {
+  en: [
+    {
+      id: 'from-france', slug: 'buying-in-israel-from-france',
+      title: 'Buying Property in Israel from France: Tax, Bank Accounts and Signing (2026)',
+      desc: 'For buyers living in France: the France–Israel tax convention, declaring an Israeli bank account on form 3916, the Israeli purchase tax and signing from Paris.',
+      h1: 'Buying property in Israel while living in France',
+      blocks: [
+        ['p', 'A buyer who lives in France deals with two tax systems. Israel taxes the purchase and the property itself. France, as your country of residence, has its own reporting rules for what you hold abroad. This guide covers the points where the two meet.'],
+        ['h2', 'Israeli purchase tax'],
+        ['p', 'While you are resident in France you buy as a foreign resident: 8% from the first shekel up to {{ils:6055070}} and 10% above it. On {{ils:3000000}} that is {{tax:foreign:3000000}}. If you plan aliyah, a contract signed from one year before aliyah to seven years after it is taxed at the oleh rates, which on the same price come to {{tax:oleh:3000000}}. See [[guide:oleh|the oleh guide]].'],
+        ['h2', 'Rental income and the France–Israel tax convention'],
+        ['p', 'France and Israel signed a tax convention on 31 July 1995. Under it, income from real property is taxable in the country where the property is located, so rent from an apartment in Israel is taxed in Israel. France removes the double taxation by granting a tax credit. Ask a tax adviser in each country how the rent is declared in France and how the credit is calculated in your case.'],
+        ['h2', 'Declaring your Israeli bank account in France'],
+        ['p', 'A French tax resident must declare every bank account opened, held, used or closed abroad, together with the annual income tax return, on form 3916-3916 bis. The fine for not declaring an account is €1,500 per account, rising to €10,000 when the account is in a state that has no agreement with France to fight tax fraud. An Israeli account opened for the purchase, the mortgage or the rent is covered.'],
+        ['h2', 'Signing from France'],
+        ['p', 'Your Israeli lawyer can sign and register the purchase for you under a power of attorney signed at the Israeli embassy or a consulate in France, or before a French notary with an apostille. There is no notary in the French sense in an Israeli purchase: the buyer\'s own lawyer checks the Land Registry extract, the planning status and any debts on the property.'],
+        ['h2', 'Financing'],
+        ['p', 'An Israeli bank may lend a foreign resident at most 50% of the value under the Bank of Israel rules. Expect to document income earned in France with tax notices, payslips and bank statements. See [[guide:foreign-buyer|the foreign resident guide]] for the full rules.'],
+      ],
+      faq: [
+        ['Where is rent from my apartment in Israel taxed if I live in France?', 'Under the France–Israel convention, income from real property is taxable in Israel, where the property is. France removes the double taxation with a tax credit.'],
+        ['Do I have to declare my Israeli bank account in France?', 'Yes. A French tax resident declares accounts held abroad on form 3916-3916 bis with the income tax return. The fine for an undeclared account is €1,500 per account.'],
+        ['Can I sign the purchase without travelling to Israel?', 'Yes, with a power of attorney signed at an Israeli consulate in France or before a French notary with an apostille.'],
+      ],
+      sources: ['frTreaty', 'fr3916', 'tax', 'boi'],
+    },
+    {
+      id: 'from-usa', slug: 'buying-in-israel-from-the-us',
+      title: 'Buying Property in Israel from the US: FBAR, Foreign Tax Credit and Purchase Tax (2026)',
+      desc: 'For US citizens and residents buying in Israel: the Israeli purchase tax, reporting the Israeli bank account on the FBAR, and the foreign tax credit for Israeli tax on rent.',
+      h1: 'Buying property in Israel as a US citizen or resident',
+      blocks: [
+        ['p', 'US citizens and resident aliens are taxed on their worldwide income wherever they live, so an apartment in Israel brings US reporting with it as well as Israeli tax. Buying the apartment does not by itself create US income tax. What follows from it, the Israeli bank account and any rent, does create reporting.'],
+        ['h2', 'Israeli purchase tax'],
+        ['p', 'A buyer who is not resident in Israel pays 8% from the first shekel up to {{ils:6055070}} and 10% above it. On {{ils:3000000}} that is {{tax:foreign:3000000}}. An oleh who signs within the eligibility period pays {{tax:oleh:3000000}} on the same price. See [[guide:oleh|the oleh guide]].'],
+        ['h2', 'Reporting the Israeli bank account: the FBAR'],
+        ['p', 'A US person with a financial interest in, or signature authority over, foreign financial accounts must file an FBAR (FinCEN Form 114) if the total value of those accounts exceeds $10,000 at any time during the calendar year. The FBAR is filed electronically with FinCEN, separately from the tax return, by 15 April, with an automatic extension to 15 October. Money held in Israel for the purchase can pass the threshold even if it stays there only briefly. The apartment itself is not a financial account.'],
+        ['h2', 'Rent from the apartment and the foreign tax credit'],
+        ['p', 'Rent from the apartment is reported on your US return even when it is taxed in Israel. Israeli income tax paid on the same income can generally be claimed as a foreign tax credit, usually on Form 1116, subject to limits. Israel and the United States have an income tax treaty, but for US citizens the foreign tax credit is the usual way double taxation is relieved. Plan this with a tax adviser who handles both countries.'],
+        ['h2', 'Signing from the US'],
+        ['p', 'Your Israeli lawyer can sign and register the purchase for you under a power of attorney signed at an Israeli consulate in the United States, or before a US notary with an apostille.'],
+        ['h2', 'Financing'],
+        ['p', 'An Israeli bank may lend a foreign resident at most 50% of the value under the Bank of Israel rules, and will ask for proof of income earned in the US. See [[guide:foreign-buyer|the foreign resident guide]].'],
+      ],
+      faq: [
+        ['Do I have to report my Israeli bank account to the US?', 'Yes, on the FBAR (FinCEN Form 114), if the total value of your foreign financial accounts exceeds $10,000 at any time in the year.'],
+        ['Does buying an apartment in Israel create US income tax?', 'Not by itself. Rent and a later sale are reported on your US return, and Israeli tax on that income can generally be claimed as a foreign tax credit, subject to limits.'],
+        ['When is the FBAR due?', '15 April, with an automatic extension to 15 October. It is filed electronically with FinCEN, not with the tax return.'],
+      ],
+      sources: ['irsAbroad', 'fbar', 'irsFtc', 'tax', 'boi'],
+    },
+    {
+      id: 'from-canada', slug: 'buying-in-israel-from-canada',
+      title: 'Buying Property in Israel from Canada: T1135, Tax Treaty and Purchase Tax (2026)',
+      desc: 'For Canadian residents buying in Israel: the Israeli purchase tax, the Canada–Israel tax convention, and when Form T1135 must be filed for property held in Israel.',
+      h1: 'Buying property in Israel while living in Canada',
+      blocks: [
+        ['p', 'A Canadian resident who buys in Israel deals with Israeli tax on the purchase and the property, and with Canadian reporting on what is held abroad. These are the points where they meet.'],
+        ['h2', 'Israeli purchase tax'],
+        ['p', 'While you live in Canada you buy as a foreign resident: 8% from the first shekel up to {{ils:6055070}} and 10% above it. On {{ils:3000000}} that is {{tax:foreign:3000000}}. If you plan aliyah, the oleh rates would bring the same price to {{tax:oleh:3000000}}. See [[guide:oleh|the oleh guide]].'],
+        ['h2', 'The Canada–Israel tax convention'],
+        ['p', 'Canada and Israel signed a tax convention on 21 July 1975. Under it, income from real property may be taxed in the country where the property is located, so Israel taxes rent from an apartment in Israel. Ask a Canadian accountant how that rent is reported in Canada and how the Israeli tax is credited.'],
+        ['h2', 'Form T1135'],
+        ['p', 'A Canadian resident must file Form T1135, the Foreign Income Verification Statement, if at any time in the year the total cost of their specified foreign property was more than CAD 100,000. Between CAD 100,000 and CAD 250,000 a simplified method is available; from CAD 250,000 the detailed method applies. Funds held outside Canada, such as an Israeli bank account, count, and so does real property outside Canada, except property for personal use. An apartment you rent out counts; a home you use yourself does not.'],
+        ['h2', 'Signing from Canada'],
+        ['p', 'Your Israeli lawyer can sign and register the purchase for you under a power of attorney signed at an Israeli consulate in Canada, or before a notary with an apostille.'],
+        ['h2', 'Financing'],
+        ['p', 'An Israeli bank may lend a foreign resident at most 50% of the value under the Bank of Israel rules. See [[guide:foreign-buyer|the foreign resident guide]].'],
+      ],
+      faq: [
+        ['Does an apartment in Israel count for Form T1135?', 'An apartment you rent out counts as specified foreign property; property for personal use does not. Funds in an Israeli bank account also count. Form T1135 is required when the total cost is more than CAD 100,000 at any time in the year.'],
+        ['Where is rent from an apartment in Israel taxed?', 'Under the Canada–Israel convention, Israel may tax income from real property located in Israel. Your Canadian accountant will show how it is reported and credited in Canada.'],
+      ],
+      sources: ['caTreaty', 't1135', 'tax', 'boi'],
+    },
+  ],
+  fr: [
+    {
+      id: 'from-france', slug: 'acheter-en-israel-depuis-la-france',
+      title: 'Acheter un bien en Israël depuis la France : fiscalité, compte bancaire et signature (2026)',
+      desc: 'Pour les acheteurs qui vivent en France : la convention fiscale franco-israélienne, la déclaration du compte israélien sur le formulaire 3916, la taxe d\'acquisition et la signature depuis Paris.',
+      h1: 'Acheter un bien en Israël en vivant en France',
+      blocks: [
+        ['p', 'Un acheteur qui vit en France a affaire à deux systèmes fiscaux. Israël taxe l\'achat et le bien lui-même ; la France, votre pays de résidence, a ses propres obligations déclaratives pour ce que vous détenez à l\'étranger. Ce guide couvre les points où les deux se rencontrent.'],
+        ['h2', 'La taxe d\'acquisition israélienne'],
+        ['p', 'Tant que vous résidez en France, vous achetez en tant que résident étranger : 8 % dès le premier shekel jusqu\'à {{ils:6055070}} et 10 % au-delà. Pour {{ils:3000000}}, cela représente {{tax:foreign:3000000}}. Si vous préparez votre alyah, un contrat signé entre un an avant l\'alyah et sept ans après est taxé au barème de l\'olé, soit {{tax:oleh:3000000}} pour le même prix. Voir [[guide:oleh|le guide de l\'olé]].'],
+        ['h2', 'Les loyers et la convention fiscale franco-israélienne'],
+        ['p', 'La France et Israël ont signé une convention fiscale le 31 juillet 1995. Selon cette convention, les revenus immobiliers sont imposables dans le pays où se trouve le bien : les loyers d\'un appartement en Israël sont donc imposés en Israël. La France élimine la double imposition par l\'octroi d\'un crédit d\'impôt. Demandez à un conseiller fiscal dans chaque pays comment déclarer ces loyers en France et comment le crédit est calculé dans votre cas.'],
+        ['h2', 'Déclarer votre compte israélien en France'],
+        ['p', 'Un résident fiscal français doit déclarer chaque compte bancaire ouvert, détenu, utilisé ou clos à l\'étranger, en même temps que sa déclaration de revenus, sur le formulaire 3916-3916 bis. L\'amende pour un compte non déclaré est de 1 500 € par compte, portée à 10 000 € lorsque le compte se trouve dans un État qui n\'a pas conclu avec la France de convention de lutte contre la fraude. Un compte israélien ouvert pour l\'achat, le crédit ou les loyers est concerné.'],
+        ['h2', 'Signer depuis la France'],
+        ['p', 'Votre avocat israélien peut signer et enregistrer l\'achat pour vous grâce à une procuration signée à l\'ambassade ou dans un consulat d\'Israël en France, ou devant un notaire français avec apostille. Il n\'y a pas de notaire au sens français dans un achat israélien : c\'est l\'avocat de l\'acheteur qui vérifie l\'extrait du cadastre, la situation d\'urbanisme et les éventuelles dettes du bien.'],
+        ['h2', 'Le financement'],
+        ['p', 'Une banque israélienne peut prêter à un résident étranger au maximum 50 % de la valeur selon les règles de la Banque d\'Israël. Prévoyez de justifier vos revenus français par vos avis d\'imposition, vos bulletins de salaire et vos relevés bancaires. Voir [[guide:foreign-buyer|le guide du résident étranger]].'],
+      ],
+      faq: [
+        ['Où sont imposés les loyers de mon appartement en Israël si je vis en France ?', 'Selon la convention franco-israélienne, les revenus immobiliers sont imposables en Israël, où se trouve le bien. La France élimine la double imposition par un crédit d\'impôt.'],
+        ['Dois-je déclarer mon compte israélien en France ?', 'Oui. Un résident fiscal français déclare ses comptes détenus à l\'étranger sur le formulaire 3916-3916 bis avec sa déclaration de revenus. L\'amende pour un compte non déclaré est de 1 500 € par compte.'],
+        ['Puis-je signer sans me rendre en Israël ?', 'Oui, avec une procuration signée dans un consulat d\'Israël en France ou devant un notaire français avec apostille.'],
+      ],
+      sources: ['frTreaty', 'fr3916', 'tax', 'boi'],
+    },
+    {
+      id: 'from-canada', slug: 'acheter-en-israel-depuis-le-canada',
+      title: 'Acheter un bien en Israël depuis le Canada : T1135, convention fiscale et taxe (2026)',
+      desc: 'Pour les résidents canadiens qui achètent en Israël : la taxe d\'acquisition israélienne, la convention fiscale Canada–Israël et le formulaire T1135 pour les biens détenus en Israël.',
+      h1: 'Acheter un bien en Israël en vivant au Canada',
+      blocks: [
+        ['p', 'Un résident canadien qui achète en Israël a affaire à la fiscalité israélienne sur l\'achat et le bien, et aux obligations déclaratives canadiennes sur ce qu\'il détient à l\'étranger. Voici les points où les deux se rencontrent.'],
+        ['h2', 'La taxe d\'acquisition israélienne'],
+        ['p', 'Tant que vous vivez au Canada, vous achetez en tant que résident étranger : 8 % dès le premier shekel jusqu\'à {{ils:6055070}} et 10 % au-delà. Pour {{ils:3000000}}, cela représente {{tax:foreign:3000000}}. Si vous préparez votre alyah, le barème de l\'olé ramènerait le même prix à {{tax:oleh:3000000}}. Voir [[guide:oleh|le guide de l\'olé]].'],
+        ['h2', 'La convention fiscale Canada–Israël'],
+        ['p', 'Le Canada et Israël ont signé une convention fiscale le 21 juillet 1975. Selon cette convention, les revenus de biens immobiliers sont imposables dans l\'État où ces biens sont situés : Israël impose donc les loyers d\'un appartement en Israël. Demandez à un comptable canadien comment ces loyers sont déclarés au Canada et comment l\'impôt israélien est crédité.'],
+        ['h2', 'Le formulaire T1135'],
+        ['p', 'Un résident canadien doit produire le formulaire T1135, Bilan de vérification du revenu étranger, si à un moment quelconque de l\'année le coût total de ses biens étrangers déterminés dépassait 100 000 $ CA. Entre 100 000 $ et 250 000 $, une méthode simplifiée est possible ; à partir de 250 000 $, la méthode détaillée s\'applique. Les fonds détenus hors du Canada, comme un compte bancaire israélien, sont visés, de même que les biens immobiliers hors du Canada, sauf ceux à usage personnel. Un appartement loué est visé ; un logement que vous utilisez vous-même ne l\'est pas.'],
+        ['h2', 'Signer depuis le Canada'],
+        ['p', 'Votre avocat israélien peut signer et enregistrer l\'achat pour vous grâce à une procuration signée dans un consulat d\'Israël au Canada, ou devant un notaire avec apostille.'],
+        ['h2', 'Le financement'],
+        ['p', 'Une banque israélienne peut prêter à un résident étranger au maximum 50 % de la valeur selon les règles de la Banque d\'Israël. Voir [[guide:foreign-buyer|le guide du résident étranger]].'],
+      ],
+      faq: [
+        ['Un appartement en Israël est-il visé par le formulaire T1135 ?', 'Un appartement loué est un bien étranger déterminé ; un bien à usage personnel ne l\'est pas. Les fonds sur un compte israélien sont aussi visés. Le T1135 est exigé lorsque le coût total dépasse 100 000 $ CA à un moment quelconque de l\'année.'],
+        ['Où sont imposés les loyers d\'un appartement en Israël ?', 'Selon la convention Canada–Israël, Israël peut imposer les revenus de biens immobiliers situés en Israël. Votre comptable canadien vous indiquera comment ils sont déclarés et crédités au Canada.'],
+      ],
+      sources: ['caTreaty', 't1135', 'tax', 'boi'],
+    },
+  ],
+};
+
+module.exports = { SRC, SRC_TEXT, G };
