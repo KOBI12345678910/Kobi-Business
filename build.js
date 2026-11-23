@@ -37,7 +37,7 @@ const RT = require('./data/renewal-i18n.js');
 Object.assign(SRC, RN.RENEWAL_SRC);
 for (const L of LANGS) { L.R = RT[L.code]; L.src.urDataset = L.R.src; }
 const ALL_CITIES = CITIES.concat(BIG_CITIES).sort((a, b) => a.names.en.localeCompare(b.names.en));
-const cityList = (L) => ALL_CITIES.filter((c) => !c.big || L.P);
+const cityList = (L) => ALL_CITIES.filter((c) => (!c.big || L.P) && (!c.langs || c.langs.includes(L.code)));
 const BIG = new Map(BIG_CITIES.map((c) => [c.id, c]));
 const hoodName = (L, h) => { const nm = L.P.names[h.id] || {}; const n = nm.n || h.name; const the = nm.the || n; return { n, the, in: nm.in || L.P.inOf(the) }; };
 // Urban renewal localities: existing city pages where we have them, extra localities otherwise.
@@ -51,7 +51,7 @@ const RLOC = [];
       const id = RN.HE[r.city] || (RN.EXTRA[r.city] && RN.EXTRA[r.city].id);
       if (!id) throw new Error('urban renewal: unknown locality ' + r.city);
       const city = CITY_BY_ID.get(id) || null;
-      loc = { id, city, names: city ? city.names : RN.EXTRA[r.city].names, recs: [] };
+      loc = { id, city, names: { ...((RN.EXTRA[r.city] || {}).names || {}), ...(city ? city.names : {}) }, recs: [] };
       by.set(r.city, loc); RLOC.push(loc);
     }
     loc.recs.push(r);
@@ -156,7 +156,7 @@ function cityFacts(L, c, name) {
   if (c.rent && c.rent.scope === 'city') facts.push(c.rent.y2025 ? K.facts.rentCity(c.rent.q2_2026, c.rent.y2025) : L.P.city.rentQ(c.rent.q2_2026));
   else if (c.rent) facts.push(K.facts.rentDistrict(d, c.rent.q2_2026));
   if (c.rent) src.push('cbsRent');
-  if (c.renewal !== null) { facts.push(K.facts.renewal(name, c.renewal)); src.push('renewal'); }
+  if (c.renewal !== null) { facts.push(K.facts.renewal(name, c.renewal)); src.push(c.added ? 'urDataset' : 'renewal'); }
   if (c.train) { facts.push(K.facts.train(name)); src.push('rail'); }
   if (c.big) { for (const t of (L.P.city.extra[c.id] || [])) facts.push(t); src.push(...c.extraSrc); }
   return { facts, src };
@@ -270,20 +270,20 @@ function model(L, page) {
     if (r.map && /^https:\/\/www\.govmap\.gov\.il\//.test(r.map)) ext.push(`<a href="${esc(r.map)}" rel="nofollow noopener">${esc(R.links.map)}</a>`);
     if (ext.length) body += `<p>${ext.join(' · ')}</p>`;
     body += `<h2>${esc(typo(L, R.checkTitle))}</h2><ul>` + R.check.map((t) => li(L, t)).join('') + '</ul>';
-    body += `<h2>${esc(typo(L, R.taxTitle))}</h2><p>${esc(typo(L, loc.city ? R.taxCity(cname) : R.taxNoCity))}</p><p>` + (loc.city ? link(L, page, `city:${loc.city.id}:foreign`, R.cityLink(cname)) + ' · ' : '') + link(L, page, 'calcIndex', R.calcLink) + '</p>';
+    body += `<h2>${esc(typo(L, R.taxTitle))}</h2><p>${esc(typo(L, loc.city && byKey.has(`${l}|city:${loc.city.id}:foreign`) ? R.taxCity(cname) : R.taxNoCity))}</p><p>` + (loc.city && byKey.has(`${l}|city:${loc.city.id}:foreign`) ? link(L, page, `city:${loc.city.id}:foreign`, R.cityLink(cname)) + ' · ' : '') + link(L, page, 'calcIndex', R.calcLink) + '</p>';
     const sib = loc.recs.filter((o) => o !== r);
     const at = loc.recs.indexOf(r);
     const near = sib.length <= 10 ? sib : [1, 2, 3, 4, 5, -1, -2, -3, -4, -5].map((k) => loc.recs[(at + k + loc.recs.length) % loc.recs.length]).filter((o, i, a) => o !== r && a.indexOf(o) === i);
     if (near.length) body += `<h2>${esc(typo(L, R.othersTitle(cname)))}</h2><ul class="cols">` + near.map((o) => `<li>${link(L, page, `renewal:${o.n}`, o.name)}</li>`).join('') + '</ul>';
     const short = r.name.length > 34 ? r.name.slice(0, 32).replace(/[\s,\-–]+\S*$/, '') + '…' : r.name;
     Object.assign(m, { title: R.title({ ...v, name: short }), desc: R.desc(v), h1: R.h1(v), lead: R.lead(v), body, faq: R.faq(v), sources: ['urDataset', 'tax'] });
-    m.related = [[`renewalCity:${loc.id}`, R.allLink(cname)]].concat(loc.city ? [[`city:${loc.city.id}:foreign`, R.cityLink(cname)]] : []).concat([['renewalIndex', R.index.h1], ['service', L.service.h1]]);
+    m.related = [[`renewalCity:${loc.id}`, R.allLink(cname)]].concat(loc.city && byKey.has(`${l}|city:${loc.city.id}:foreign`) ? [[`city:${loc.city.id}:foreign`, R.cityLink(cname)]] : []).concat([['renewalIndex', R.index.h1], ['service', L.service.h1]]);
     m.crumbs.push(['cityIndex', L.nav.cities], [`renewalCity:${loc.id}`, cname], [null, r.name]);
   } else if (page.type === 'renewalCity') {
     const R = L.R; const loc = page.loc; const cname = loc.names[l] || loc.names.en; const n = loc.recs.length;
     const body = '<ul class="list">' + loc.recs.map((r) => `<li>${link(L, page, `renewal:${r.n}`, r.name)}<br><span>${esc(typo(L, R.status[r.status][0] + (r.existing && r.proposed ? ' · ' + R.cityPage.units(L.num(r.existing), L.num(r.proposed)) : '')))}</span></li>`).join('') + '</ul>';
     Object.assign(m, { title: R.cityPage.title(cname, n), desc: R.cityPage.desc(cname, n), h1: R.cityPage.h1(cname), lead: R.cityPage.lead(cname, n), body, sources: ['urDataset'] });
-    m.related = (loc.city ? [[`city:${loc.city.id}:foreign`, R.cityLink(cname)]] : []).concat([['renewalIndex', R.index.h1], ['calcIndex', L.calc.index.h1]]);
+    m.related = (loc.city && byKey.has(`${l}|city:${loc.city.id}:foreign`) ? [[`city:${loc.city.id}:foreign`, R.cityLink(cname)]] : []).concat([['renewalIndex', R.index.h1], ['calcIndex', L.calc.index.h1]]);
     m.crumbs.push(['cityIndex', L.nav.cities], [null, cname]);
   } else if (page.key === 'renewalIndex') {
     const R = L.R;
@@ -334,7 +334,7 @@ function render(L, page) {
   if (page.type === 'hub' || page.type === 'service') ld.push({ '@context': 'https://schema.org', '@type': 'RealEstateAgent', name: L.brand, url: 'https://www.kobielkayamrealestateltd.com/', telephone: PHONE, email: MAIL, foundingDate: '2013', address: { '@type': 'PostalAddress', addressLocality: 'Tel Aviv', addressCountry: 'IL' }, areaServed: 'IL', knowsLanguage: ['he', 'en', 'fr'] });
   const noindex = !PROD || page.draft;
   const wa = `https://wa.me/${WA}?text=${encodeURIComponent(L.ui.waMsg(m.h1))}`;
-  const srcHtml = m.sources.length ? `<section class="sources"><h2>${esc(L.ui.sources)}</h2><ul>` + m.sources.map((s) => `<li>${SRC[s] ? `<a href="${SRC[s].url}" rel="nofollow noopener">${esc(L.src[s])}</a>` : esc(L.src[s])}</li>`).join('') + `</ul><p>${esc(typo(L, L.ui.lastVerified))} ${esc(fmtDate(L, page.type === 'renewal' || page.type === 'renewalCity' || page.key === 'renewalIndex' ? RN.RENEWAL_VERIFIED : page.type === 'city' || page.type === 'hood' || page.key === 'cityIndex' || page.key === 'hoodIndex' ? CITY_VERIFIED : taxLib.VERIFIED).replace(/\.$/, ''))}.</p></section>` : '';
+  const srcHtml = m.sources.length ? `<section class="sources"><h2>${esc(L.ui.sources)}</h2><ul>` + m.sources.map((s) => `<li>${SRC[s] ? `<a href="${SRC[s].url}" rel="nofollow noopener">${esc(L.src[s])}</a>` : esc(L.src[s])}</li>`).join('') + `</ul><p>${esc(typo(L, L.ui.lastVerified))} ${esc(fmtDate(L, page.type === 'renewal' || page.type === 'renewalCity' || page.key === 'renewalIndex' || (page.city && page.city.added) ? RN.RENEWAL_VERIFIED : page.type === 'city' || page.type === 'hood' || page.key === 'cityIndex' || page.key === 'hoodIndex' ? CITY_VERIFIED : taxLib.VERIFIED).replace(/\.$/, ''))}.</p></section>` : '';
   return `<!doctype html>
 <html lang="${L.htmlLang}">
 <head>

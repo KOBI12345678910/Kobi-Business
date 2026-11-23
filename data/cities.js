@@ -161,6 +161,21 @@ for (const r of BIG2) CITIES.push({
   rent: r[12] ? { scope: 'city', q2_2026: r[12], y2025: r[13] } : null,
   renewal: r[14], train: r[15], noPriceLine: r[16] !== false,
 });
+// Localities added 23.11.2026 from the CBS localities file 2024 (bycode2024.xlsx): every city and local council
+// with at least 5,000 residents that had no page yet, outside Judea and Samaria and the Golan. Russian names come
+// from the data.gov.il multilingual localities dataset; where it has none, the locality is not built in Russian.
+// District averages are the CBS Q2-2026 district figures already used above; no figure for the Northern and Jerusalem districts.
+const DIST_PRICE = { central: 2731500, southern: 1658400, haifa: 1933300, telaviv: 3576800 };
+const DIST_RENT = { central: 5474, southern: 3703, telaviv: 6412 };
+for (const x of require('./localities.json')) CITIES.push({
+  id: x.id, names: { en: x.en, fr: x.en, es: x.en, de: x.en, pt: x.en, ...(x.ru ? { ru: x.ru } : {}) },
+  ruLoc: x.ru ? (x.kind === 'city' ? `в городе ${x.ru}` : `в населённом пункте ${x.ru}`) : null,
+  langs: x.ru ? null : ['en', 'fr', 'es', 'de', 'pt'],
+  district: x.district, kind: x.kind, founded: x.founded, pop: x.pop, cluster: null, clusterYear: null,
+  price: DIST_PRICE[x.district] ? { scope: 'district', q2_2026: DIST_PRICE[x.district], y2025: null } : null,
+  rent: DIST_RENT[x.district] ? { scope: 'district', q2_2026: DIST_RENT[x.district], y2025: null } : null,
+  renewal: x.renewal, train: false, added: '2026-11-23',
+});
 const OTHER = { beersheba: { es: 'Beerseba', de: 'Beerscheba', pt: 'Berseba' } };
 for (const x of CITIES) if (OTHER[x.id]) Object.assign(x.names, OTHER[x.id]);
 
