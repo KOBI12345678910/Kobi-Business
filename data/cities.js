@@ -132,6 +132,38 @@ CITIES.push({
   id: 'bnei-brak', names: { en: 'Bnei Brak', fr: 'Bnei Brak', ru: 'Бней-Брак' }, ruLoc: 'в Бней-Браке', district: 'telaviv', kind: 'city', founded: null,
   pop: 229995, cluster: null, price: { scope: 'city', q2_2026: 2310300, y2025: 2355100 }, rent: null, renewal: 3, train: false,
 });
+
+// Large cities added 23.11.2026. Figures from the "verified local data" sections of the Hebrew pages
+// he-matrix:advisor/prices/rent:<id> on the main site (checked there 5.11.2026).
+// noPriceLine: false hides the "CBS publishes only for cities over 100,000" sentence where it would mislead.
+const BIG2 = [
+  // id, en, fr, ru, ruLoc, district, founded, pop, cluster, clusterYear, priceQ2, price2025, rentQ2, rent2025, renewal, train, noPriceLine
+  ['netanya', 'Netanya', 'Netanya', 'Нетания', 'в Нетании', 'central', 1929, 234812, 6, 2021, 2644300, 2645100, 4815.5, 4584.0, 41, true],
+  ['ashdod', 'Ashdod', 'Ashdod', 'Ашдод', 'в Ашдоде', 'southern', 1955, 228562, null, null, 2257200, 2111100, 4454.6, 4297.1, 17, true],
+  ['raanana', 'Ra\'anana', 'Raanana', 'Раанана', 'в Раанане', 'central', null, 82963, 8, 2019, null, null, null, null, null, true],
+  ['herzliya', 'Herzliya', 'Herzliya', 'Герцлия', 'в Герцлии', 'telaviv', null, 110885, null, null, 3578100, 3949200, 6774.5, 6446.1, 24, true],
+  ['modiin', 'Modi\'in', 'Modiin', 'Модиин', 'в Модиине', 'central', null, 100052, null, null, null, null, null, null, 0, true, false],
+  ['ashkelon', 'Ashkelon', 'Ashkelon', 'Ашкелон', 'в Ашкелоне', 'southern', 1948, 166865, 5, 2021, 1729100, 1697700, 3697.9, 3544.4, 9, true],
+  ['beersheba', 'Beersheba', 'Beer-Sheva', 'Беэр-Шева', 'в Беэр-Шеве', 'southern', null, 223587, 5, 2021, 1236200, 1236300, 3182.9, 3034.0, 14, false],
+  ['petah-tikva', 'Petah Tikva', 'Petah Tikva', 'Петах-Тиква', 'в Петах-Тикве', 'central', 1878, 270403, 7, 2021, 2518600, 2605400, 5138.4, 4911.2, 37, true],
+  ['rishon-lezion', 'Rishon LeZion', 'Rishon LeZion', 'Ришон-ле-Цион', 'в Ришон-ле-Ционе', 'central', null, 259275, 7, 2021, 2618400, 2600000, 5272.9, null, 19, true],
+  ['holon', 'Holon', 'Holon', 'Холон', 'в Холоне', 'telaviv', 1940, 191829, null, null, null, null, 4944.5, 4795.2, 26, true, false],
+  ['bat-yam', 'Bat Yam', 'Bat Yam', 'Бат-Ям', 'в Бат-Яме', 'telaviv', null, 129495, null, null, 2258100, 2346100, 4407.4, null, 39, true],
+  ['ramat-gan', 'Ramat Gan', 'Ramat Gan', 'Рамат-Ган', 'в Рамат-Гане', 'telaviv', null, 172242, null, null, 3070000, null, null, null, 78, false],
+  ['givatayim', 'Givatayim', 'Givatayim', 'Гиватаим', 'в Гиватаиме', 'telaviv', 1922, 58600, null, null, null, null, null, null, 23, false],
+  ['kfar-saba', 'Kfar Saba', 'Kfar Saba', 'Кфар-Саба', 'в Кфар-Сабе', 'central', null, 99410, null, null, 2941100, 2822800, 6145.8, 5842.3, 12, true],
+  ['hod-hasharon', 'Hod HaSharon', 'Hod HaSharon', 'Ход-ха-Шарон', 'в Ход-ха-Шароне', 'central', null, 66398, null, null, null, null, null, null, 6, true],
+];
+for (const r of BIG2) CITIES.push({
+  id: r[0], names: { en: r[1], fr: r[2], ru: r[3] }, ruLoc: r[4], district: r[5], kind: 'city', founded: r[6], pop: r[7],
+  cluster: r[8], clusterYear: r[9],
+  price: r[10] ? { scope: 'city', q2_2026: r[10], y2025: r[11] } : null,
+  rent: r[12] ? { scope: 'city', q2_2026: r[12], y2025: r[13] } : null,
+  renewal: r[14], train: r[15], noPriceLine: r[16] !== false,
+});
+const OTHER = { beersheba: { es: 'Beerseba', de: 'Beerscheba', pt: 'Berseba' } };
+for (const x of CITIES) if (OTHER[x.id]) Object.assign(x.names, OTHER[x.id]);
+
 const ES = { tiberias: 'Tiberíades', caesarea: 'Cesarea', akko: 'Acre', safed: 'Safed', eilat: 'Eilat' };
 for (const x of CITIES) if (ES[x.id]) x.names.es = ES[x.id];
 const PT = { tiberias: 'Tiberíades', caesarea: 'Cesareia', akko: 'Acre' };

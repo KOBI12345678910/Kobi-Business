@@ -115,7 +115,7 @@ function cityFacts(L, c, name) {
   if (c.cluster) { facts.push(K.facts.cluster(c.cluster, c.clusterYear)); src.push(c.clusterSrc || 'cbsLocalities'); }
   if (c.price && c.price.scope === 'city') facts.push(c.price.y2025 ? K.facts.priceCity(name, c.price.q2_2026, c.price.y2025) : L.P.city.priceQ(name, c.price.q2_2026));
   else if (c.price) facts.push(K.facts.priceDistrict(name, d, c.price.q2_2026));
-  else facts.push(K.facts.noPrice(name));
+  else if (c.noPriceLine !== false) facts.push(K.facts.noPrice(name));
   if (c.price) src.push('cbsPrices');
   if (c.rent && c.rent.scope === 'city') facts.push(c.rent.y2025 ? K.facts.rentCity(c.rent.q2_2026, c.rent.y2025) : L.P.city.rentQ(c.rent.q2_2026));
   else if (c.rent) facts.push(K.facts.rentDistrict(d, c.rent.q2_2026));
