@@ -168,15 +168,15 @@ for (const r of BIG2) CITIES.push({
 const DIST_PRICE = { central: 2731500, southern: 1658400, haifa: 1933300, telaviv: 3576800 };
 const DIST_RENT = { central: 5474, southern: 3703, telaviv: 6412 };
 for (const x of require('./localities.json')) CITIES.push({
-  id: x.id, names: { en: x.en, fr: x.en, es: x.en, de: x.en, pt: x.en, it: x.en, ...(x.ru ? { ru: x.ru } : {}) },
+  id: x.id, names: { en: x.en, fr: x.en, es: x.en, de: x.en, pt: x.en, it: x.en, nl: x.en, ...(x.ru ? { ru: x.ru } : {}) },
   ruLoc: x.ru ? (x.kind === 'city' ? `в городе ${x.ru}` : `в населённом пункте ${x.ru}`) : null,
-  langs: x.ru ? null : ['en', 'fr', 'es', 'de', 'pt', 'it'],
+  langs: x.ru ? null : ['en', 'fr', 'es', 'de', 'pt', 'it', 'nl'],
   district: x.district, kind: x.kind, founded: x.founded, pop: x.pop, cluster: null, clusterYear: null,
   price: DIST_PRICE[x.district] ? { scope: 'district', q2_2026: DIST_PRICE[x.district], y2025: null } : null,
   rent: DIST_RENT[x.district] ? { scope: 'district', q2_2026: DIST_RENT[x.district], y2025: null } : null,
   renewal: x.renewal, train: false, added: '2026-11-23',
 });
-const OTHER = { beersheba: { es: 'Beerseba', de: 'Beerscheba', pt: 'Berseba', it: 'Beersheba' } };
+const OTHER = { beersheba: { es: 'Beerseba', de: 'Beerscheba', pt: 'Berseba', it: 'Beersheba', nl: 'Beersjeba' } };
 for (const x of CITIES) if (OTHER[x.id]) Object.assign(x.names, OTHER[x.id]);
 
 const ES = { tiberias: 'Tiberíades', caesarea: 'Cesarea', akko: 'Acre', safed: 'Safed', eilat: 'Eilat' };

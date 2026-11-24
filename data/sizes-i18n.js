@@ -304,4 +304,41 @@ T.uk = {
   index: { title: (p) => `${p}: ціни та оренда квартир за розміром (2026)`, desc: (p) => `Офіційні середні ціни та оренда (${p}) для кожного розміру квартири з податком на купівлю за кожною середньою ціною.`, h1: (p) => `${p}: ціни та оренда за розміром квартири`, lead: () => 'Середні дані Центрального статистичного бюро за квітень–червень 2026 року і за 2025 рік за кількістю кімнат.', line: (s, p) => `${s} ${wUk(s)}: ${p}` },
 };
 
+T.nl = {
+  base: 'woningprijzen',
+  size: (s) => s.replace(/\./g, ',').replace('-', '–'),
+  rooms: (s) => `${s.replace(/\./g, ',').replace('-', '–')} kamers`,
+  title: (v) => `${v.place}: prijzen en huren van appartementen met ${v.size} kamers (2026)`,
+  desc: (v) => `Officiële gemiddelden van het Centraal Bureau voor de Statistiek voor appartementen met ${v.size} kamers (${v.place}): ${v.q2} van april tot juni 2026, huur en overdrachtsbelasting.`,
+  h1: (v) => `Appartementen met ${v.size} kamers (${v.place}): prijs en huur`,
+  lead: (v) => `Voor welke prijs appartementen met ${v.size} kamers (${v.place}) werden verkocht en verhuurd, volgens het Centraal Bureau voor de Statistiek, en de overdrachtsbelasting bij de gemiddelde prijs. In Israël telt de woonkamer als een kamer.`,
+  priceTitle: 'Gemiddelde verkoopprijs',
+  q2: (v) => `April tot juni 2026: ${v.q2}, op basis van ${v.q2n} transacties (voorlopig cijfer).`,
+  q1: (v) => `Januari tot maart 2026: ${v.q1}.`,
+  y25: (v) => `Gemiddelde 2025: ${v.y25}, op basis van ${v.y25n} transacties.`,
+  y24: (v) => `Gemiddelde 2024: ${v.y24}.`,
+  chg: (v) => `Het gemiddelde van april tot juni 2026 ligt ${v.chg} het gemiddelde van 2025.`,
+  up: (p) => `${p} boven`, down: (p) => `${p} onder`, same: 'gelijk aan',
+  rentTitle: 'Gemiddelde maandhuur op de vrije markt',
+  rentSize: (s) => `Gegevens voor appartementen met ${s} kamers.`,
+  rentQ2: (v) => `April tot juni 2026: ${v.rentQ2}.`,
+  rentY: (v) => `Gemiddelde 2025: ${v.rentY}.`,
+  taxTitle: 'De overdrachtsbelasting bij de gemiddelde prijs',
+  taxAt: (v) => `Voor een appartement tegen de gemiddelde prijs van april tot juni 2026, ${v.q2}:`,
+  notesTitle: 'Hoe u deze cijfers leest',
+  notes: [
+    'De gemiddelden gaan over appartementen die in de periode op de vrije markt zijn verkocht, en weerspiegelen dus ook welke appartementen werden verkocht, niet alleen de prijsontwikkeling.',
+    'Een gemiddelde is een vertrekpunt. Vergelijk een bepaald appartement met de transacties die in dezelfde straat op nadlan.gov.il zijn geregistreerd.',
+  ],
+  small: 'In deze groep zijn in het kwartaal minder dan 50 transacties geregistreerd, dus het kwartaalgemiddelde kan sterk schommelen.',
+  othersTitle: (p) => `Andere appartementsgroottes (${p})`,
+  cityLink: (p) => `Kopen (${p}): officiële cijfers en belasting`,
+  districtCities: (d) => `Steden met eigen cijfers (${d})`,
+  faq: (v) => [
+    [`Wat is de gemiddelde prijs van een appartement met ${v.size} kamers (${v.place})?`, `${v.q2} van april tot juni 2026, volgens het Centraal Bureau voor de Statistiek (voorlopig cijfer, ${v.q2n} transacties). Het gemiddelde van 2025 was ${v.y25}.`],
+    ['Hoeveel overdrachtsbelasting zou een buitenlandse ingezetene bij die prijs betalen?', `${v.taxForeign}. Een olee die zijn woning binnen de voordeelperiode koopt, zou ${v.taxOleh} betalen.`],
+  ],
+  index: { title: (p) => `${p}: prijzen en huren per appartementsgrootte (2026)`, desc: (p) => `Officiële gemiddelde prijzen en huren (${p}) voor elke appartementsgrootte, met de overdrachtsbelasting bij elke gemiddelde prijs.`, h1: (p) => `${p}: prijzen en huren per appartementsgrootte`, lead: () => 'Gemiddelden van het Centraal Bureau voor de Statistiek voor april tot juni 2026 en voor 2025, per aantal kamers.', line: (s, p) => `${s} kamers: ${p}` },
+};
+
 module.exports = T;

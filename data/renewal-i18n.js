@@ -514,4 +514,68 @@ T.uk = {
   },
 };
 
+T.nl = {
+  base: 'stadsvernieuwing',
+  src: 'Ministerie van Bouw en Volkshuisvesting, databank van stadsvernieuwingsgebieden op data.gov.il (bijgewerkt op 21 november 2026)',
+  mavat: 'Planningsadministratie, plandossier op het nationale planningsportaal (mavat)',
+  status: {
+    initial: ['Eerste planning', 'Er is nog geen wettelijk plan ingediend, dus omvang en planning liggen nog open.'],
+    statutory: ['Wettelijke planning', 'Een plan ligt ter beoordeling bij de planningscommissies en is nog niet goedgekeurd.'],
+    approved: ['Plan goedgekeurd, niet uitgevoerd', 'Het plan is goedgekeurd, maar de uitvoering is nog niet begonnen.'],
+    implementation: ['Plan goedgekeurd, in uitvoering', 'Het plan is goedgekeurd en de uitvoering is begonnen.'],
+    permits: ['Plan goedgekeurd, bouwvergunningen verleend', 'Het plan is goedgekeurd en de bouwvergunningen zijn verleend.'],
+  },
+  track: { tax: 'fiscaal traject (belastingvoordelen van de wet op de vastgoedbelasting)', authorities: 'gemeentelijk traject (onder leiding van de gemeente)', undeclared: 'nog niet aangewezen' },
+  title: (v) => `Stadsvernieuwingsgebied '${v.name}', ${v.city}: status en plan (nr. ${v.n})`,
+  desc: (v) => `${v.status} in gebied nr. ${v.n}, ${v.city}` + (v.existing && v.proposed ? `: ${v.existing} bestaande en ${v.proposed} voorgestelde woningen` : '') + ', volgens de databank van het Ministerie van Bouw en Volkshuisvesting.',
+  h1: (v) => `Stadsvernieuwingsgebied '${v.name}', ${v.city}`,
+  lead: (v) => `De officiële gegevens van gebied nr. ${v.n} in de databank van het Ministerie van Bouw en Volkshuisvesting, en wat ze betekenen als u een appartement in of naast het gebied koopt.`,
+  figsTitle: 'Het gebied in officiële gegevens',
+  figs: {
+    id: (v) => `Gebied nr. ${v.n}, ${v.city}. Naam in de databank (in het Hebreeuws): ${v.name}.`,
+    status: (v) => `Status: ${v.status}. ${v.statusText}`,
+    units: (v) => `Bestaande woningen: ${v.existing}. Voorgestelde woningen: ${v.proposed}.`,
+    existing: (v) => `Bestaande woningen: ${v.existing}.`,
+    proposed: (v) => `Voorgestelde woningen: ${v.proposed}.`,
+    track: (v) => `Traject: ${v.track}.`,
+    declared: (v) => `Aangewezen als stadsvernieuwingsgebied op ${v.declared}.`,
+    plan: (v) => `Plannummer: ${v.plan}.`,
+    inForce: (v) => `Plan van kracht sinds ${v.inForce}.`,
+  },
+  links: { mavat: 'Plandossier op het nationale planningsportaal', map: 'Het gebied op de overheidskaart' },
+  checkTitle: 'Wat u nagaat voordat u in een vernieuwingsgebied koopt',
+  check: [
+    'Of de eigenaren een overeenkomst met een ontwikkelaar hebben getekend, en welk deel van hen heeft getekend.',
+    'De garanties die de ontwikkelaar aan de eigenaren geeft, en wie de tijdelijke huisvesting tijdens de bouw betaalt.',
+    'De planningsfase op het nationale planningsportaal: een appartement is vóór en na goedkeuring van een plan niet evenveel waard.',
+    'Wat de overeenkomst elk bestaand appartement geeft (een groter nieuw appartement, parkeerplaats, berging) en hoe lang de bouw naar verwachting duurt.',
+  ],
+  taxTitle: 'De overdrachtsbelasting',
+  taxCity: (c) => `De overdrachtsbelasting hangt af van de prijs en van uw status, niet van het gebied. De pagina van ${c} toont de officiële prijzen en de belasting bij die prijzen.`,
+  taxNoCity: 'De overdrachtsbelasting hangt af van de prijs en van uw status, niet van het gebied.',
+  cityLink: (c) => `Kopen in ${c}: officiële cijfers en belasting`,
+  calcLink: 'De overdrachtsbelasting voor elke prijs',
+  othersTitle: (c) => `Andere vernieuwingsgebieden in ${c}`,
+  allLink: (c) => `Alle stadsvernieuwingsgebieden in ${c}`,
+  faq: (v) => [
+    [`In welke fase is het gebied '${v.name}' in ${v.city}?`, `${v.status}. ${v.statusText} Dit is de status in de databank van het Ministerie van Bouw en Volkshuisvesting, bijgewerkt op 21 november 2026.`],
+  ].concat(v.existing && v.proposed ? [[`Hoeveel woningen stelt het plan voor '${v.name}' voor?`, `${v.proposed} woningen, in plaats van ${v.existing} bestaande woningen, volgens de databank.`]] : [])
+    .concat([['Verandert kopen in een vernieuwingsgebied de overdrachtsbelasting?', 'Nee. De belasting hangt af van de prijs en van uw status: buitenlandse ingezetene, olee of Israëlische ingezetene. Vraag uw advocaat naar de andere fiscale aspecten van een vernieuwingstransactie.']]),
+  cityPage: {
+    title: (c, n) => `Stadsvernieuwing in ${c}: ${n} gebieden, status en woningen`,
+    desc: (c, n) => `De ${n} stadsvernieuwingsgebieden van ${c} in de databank van het Ministerie van Bouw en Volkshuisvesting, met status en woningen, voor kopers uit het buitenland.`,
+    h1: (c) => `Stadsvernieuwingsgebieden in ${c}`,
+    lead: (c, n) => `In de databank van het Ministerie van Bouw en Volkshuisvesting, bijgewerkt op 21 november 2026, staan ${n} gebieden in ${c}. Elke pagina toont de officiële gegevens van het gebied en wat u vóór de aankoop nagaat.`,
+    units: (e, p) => `${e} bestaande, ${p} voorgestelde woningen`,
+  },
+  index: {
+    nav: 'Stadsvernieuwing',
+    title: 'Stadsvernieuwing in Israël per stad: officiële gegevens voor kopers uit het buitenland',
+    desc: 'Alle stadsvernieuwingsgebieden uit de databank van het Ministerie van Bouw en Volkshuisvesting, per stad, met status en woningen, voor buitenlandse ingezetenen en olim.',
+    h1: 'Stadsvernieuwingsgebieden in Israël, per stad',
+    lead: (n) => `${n} gebieden uit de databank van het Ministerie van Bouw en Volkshuisvesting, bijgewerkt op 21 november 2026. In een vernieuwingsgebied wordt een oud gebouw gesloopt en herbouwd, of versterkt en uitgebreid, en dat verandert de waarde van de appartementen.`,
+    count: (n) => n === 1 ? '1 gebied' : `${n} gebieden`,
+  },
+};
+
 module.exports = T;

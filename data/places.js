@@ -17,7 +17,7 @@ const PLACE_SRC = {
 
 const BIG_CITIES = [
   {
-    id: 'jerusalem', names: { en: 'Jerusalem', fr: 'Jérusalem', ru: 'Иерусалим', es: 'Jerusalén', de: 'Jerusalem', pt: 'Jerusalém', it: 'Gerusalemme' }, ruLoc: 'в Иерусалиме',
+    id: 'jerusalem', names: { en: 'Jerusalem', fr: 'Jérusalem', ru: 'Иерусалим', es: 'Jerusalén', de: 'Jerusalem', pt: 'Jerusalém', it: 'Gerusalemme', nl: 'Jeruzalem' }, ruLoc: 'в Иерусалиме',
     district: 'jerusalem', kind: 'city', founded: null, big: true,
     pop: 1063000, popKey: 'jlm', popSrc: 'cbsJlm', cluster: 2, clusterYear: 2021, clusterSrc: 'cbsSocio',
     price: { scope: 'city', q2_2026: 3058500, y2025: null }, rent: { scope: 'city', q2_2026: 5347.4, y2025: null },
